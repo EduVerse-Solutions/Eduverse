@@ -1,0 +1,32 @@
+name: Check Base Branch for pull request
+
+# Trigger the workflow when a pull request is opened, synchronized, or reopened
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-base-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Base Branch
+        # Use a script to check the base and head branches of the pull request
+        run: |
+          base_branch=$(jq --raw-output .pull_request.base.ref "$GITHUB_EVENT_PATH")
+          head_branch=$(jq --raw-output .pull_request.head.ref "$GITHUB_EVENT_PATH")
+          
+          if [[ "$base_branch" == "production" ]]; then
+            # Check if the head branch is dev
+            if [[ "$head_branch" != "dev" ]]; then
+              echo "Error: Pull requests to production branch can only be from the dev branch."
+              exit 1
+            fi
+          elif [[ "$base_branch" == "dev" ]]; then
+            # List of allowed head branches for dev
+            allowed_head_branches=("development/core" "development/parent" "development/teacher" "development/student")
+            # Check if the head branch is in the list of allowed head branches
+            if [[ ! " ${allowed_head_branches[@]} " =~ " $head_branch " ]]; then
+              echo "Error: Pull requests to dev branch must be from one of the following branches: ${allowed_head_branches[*]}"
+              exit 1
+            fi
+          fi

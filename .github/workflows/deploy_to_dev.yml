@@ -1,0 +1,55 @@
+name: Deploy EduVerse to Development Server
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions: read-all
+
+jobs:
+  deploy_to_dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Dev Server to serve Development Environment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.WEB_DEPLOY_SERVER_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            if [[ ! -d eduverse ]]; then
+              git clone git@github.com:Eduverse-Solutions/eduverse.git
+
+              # set the python virtual environment for the first time
+              python3.10 -m venv eduverse/.venv
+
+              # let's copy the .env file
+              cp .env eduverse/.env
+            fi
+
+            # change into the project directory
+            cd eduverse
+            git switch dev # we are deploying the content in the dev
+            git pull origin dev
+
+            # setup the environment for Django
+            source .venv/bin/activate
+            pip install --upgrade pip
+            pip install --upgrade -r requirements.txt
+
+            if [[ -f manage.py ]]; then
+              # undo all migrations and reapply them
+              ./undo_migrations.sh --redo
+
+              # get the static files
+              ./manage.py collectstatic --noinput
+
+              # get the service running again
+              sudo systemctl stop eduverse.service
+              sudo systemctl start eduverse.service
+              exit 0
+            else
+              echo "There's nothing to deploy yet."
+            fi

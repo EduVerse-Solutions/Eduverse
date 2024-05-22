@@ -1,0 +1,48 @@
+name: Test for consistency and user interaction
+
+on:
+  pull_request:
+    branches:
+      - production
+
+permissions: read-all
+
+jobs:
+  production_test_django:
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          # let's install the packages and dependencies only when Django files
+          # are available.
+          if [[ -f manage.py ]]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            wget https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz
+            sudo tar -xvf geckodriver-v0.34.0-linux64.tar.gz
+            sudo mv geckodriver /usr/local/bin/
+            sudo chmod +x /usr/local/bin/geckodriver
+          fi
+      - name: Run Tests
+        env:
+          EDUVERSE_DJANGO_SECRET_KEY: ${{ secrets.EDUVERSE_DJANGO_SECRET_KEY }}
+        run: |
+          if [[ -f manage.py ]]; then
+            python manage.py test -v 3
+          else
+            echo "No manage.py file found. Probably the Django files haven't been added yet."
+          fi

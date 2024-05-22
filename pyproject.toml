@@ -1,0 +1,59 @@
+[tool.black]
+target-version = ['py310']
+line-length = 78
+
+[tool.isort]
+profile = "black"
+indent = 4
+line_length = 78
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.djlint]
+profile = "django"
+blank_line_before_tag = "endblock"
+blank_line_after_tag = "block"
+format_attribute_template_tags = true
+format_css = true
+format_js = true
+indent = 2
+max_line_length = 100
+ignore = "H031,H030,H023"
+use_gitinore = true
+max_blank_lines = 1
+
+[tool.djlint.js]
+indent_size = 2
+
+[tool.autopep8]
+max_line_length = 78
+in-place = true
+recursive = true
+aggressive = 3
+
+[tool.ruff]
+line-length = 78
+target-version = 'py310'
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "Q"]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "auto"
+docstring-code-format= true
+docstring-code-line-length = 78
+unused-imports = false
+
+
+[tool.prettier]
+files = ['**/*.js', '**/*.css']
+trailingComma = "es5"
+tabWidth = 2
+semi = false
+singleQuote = true

@@ -1,0 +1,43 @@
+name: Run Django test cases
+
+on:
+  pull_request:
+    branches:
+      - development/*
+      - dev
+
+permissions: read-all
+
+jobs:
+  dev_test_django:
+    runs-on: ubuntu-latest
+    environment: development
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - uses: actions/checkout@v4.1.0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          if [[ -f manage.py  ]]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            wget \
+              https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz
+            sudo tar -xvf geckodriver-v0.34.0-linux64.tar.gz
+            sudo mv geckodriver /usr/local/bin/
+            sudo chmod +x /usr/local/bin/geckodriver
+          fi
+      - name: Run Tests
+        env:
+          EDUVERSE_DJANGO_SECRET_KEY: ${{ secrets.EDUVERSE_DJANGO_SECRET_KEY }}
+        run: |
+          if [[ -f manage.py  ]]; then
+            python manage.py test -v 3
+          fi
