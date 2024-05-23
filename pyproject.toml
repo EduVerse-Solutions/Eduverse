@@ -14,14 +14,12 @@ ensure_newline_before_comments = true
 
 [tool.djlint]
 profile = "django"
-blank_line_before_tag = "endblock"
-blank_line_after_tag = "block"
 format_attribute_template_tags = true
 format_css = true
 format_js = true
 indent = 2
 max_line_length = 100
-ignore = "H031,H030,H023"
+ignore = "H031,H030,H023,H021"
 use_gitinore = true
 max_blank_lines = 1
 
@@ -46,14 +44,15 @@ unfixable = []
 [tool.ruff.format]
 quote-style = "double"
 line-ending = "auto"
-docstring-code-format= true
+docstring-code-format = true
 docstring-code-line-length = 78
 unused-imports = false
 
 
 [tool.prettier]
-files = ['**/*.js', '**/*.css']
+ignore = ['**/.html']
 trailingComma = "es5"
 tabWidth = 2
-semi = false
+semi = true
 singleQuote = true
+singleAttributePerLine = true
