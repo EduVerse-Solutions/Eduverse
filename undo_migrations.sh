@@ -61,26 +61,19 @@ django_apps=$(echo "${all_apps}" | grep -v -f <(echo "${my_apps[@]}")) || :
 # undo migrations for all apps
 for app in ${django_apps}; do
 	echo "Undoing migrations for ${app}..."
-	if ! ./manage.py migrate "${app}" zero 2>error.log; then
-		# if the migrate command fails, parse the error message
-		problem=$(grep 'django.db.migrations.exceptions.InconsistentMigrationHistory' error.log | awk -F' ' '{print $NF}') || :
-		dependency=$(grep 'applied before its dependency' error.log | awk -F' ' '{print $NF}') || :
-		# unapply the problematic migration
-		./manage.py migrate "${problem%.*}" zero 2>/dev/null
-		# apply the dependency
-		./manage.py migrate "${dependency%.*}" "${dependency##*.}" 2>/dev/null
-		# reapply the problematic migration
-		./manage.py migrate "${problem%.*}" "${problem##*.}" 2>/dev/null
-	fi
+	./manage.py migrate "${app}" zero 2>/dev/null
+
 	rm -rf "${app}/migrations/" 2>/dev/null
 done
 
 if [[ ${redo} == true ]]; then
+	./manage.py migrate
 	# creating super superuser
 	echo
 	echo "Creating super superuser..."
-    ./create_superuser.py
-    echo "Super User created..."
+	./create_superuser.py
+	echo "Super User created..."
 fi
 
+rm error.log 2>/dev/null
 echo "Finished execution successfully"
