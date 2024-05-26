@@ -10,6 +10,7 @@ permissions: read-all
 jobs:
   deploy_to_dev:
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - name: Configure Dev Server to serve Development Environment
         uses: appleboy/ssh-action@master
