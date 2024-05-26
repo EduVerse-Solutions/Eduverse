@@ -1,0 +1,43 @@
+.white-bg-color {
+  background-color: #f0f5f5;
+}
+
+a,
+a:hover {
+  text-decoration: none !important;
+}
+
+a#forgot-password:hover {
+  color: #850b0b !important;
+}
+
+.avatar-container {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.avatar-container img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 100%;
+  width: auto;
+  transform: translate(-50%, -50%);
+}
+
+.alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-error hr {
+  border-top-color: #f1b0b7;
+}
+
+.alert-error .alert-link {
+  color: #491217;
+}

@@ -5,6 +5,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions: read-all
+
 jobs:
   check-base-branch:
     runs-on: ubuntu-latest
@@ -14,7 +16,7 @@ jobs:
         run: |
           base_branch=$(jq --raw-output .pull_request.base.ref "$GITHUB_EVENT_PATH")
           head_branch=$(jq --raw-output .pull_request.head.ref "$GITHUB_EVENT_PATH")
-          
+
           if [[ "$base_branch" == "production" ]]; then
             # Check if the head branch is dev
             if [[ "$head_branch" != "dev" ]]; then
