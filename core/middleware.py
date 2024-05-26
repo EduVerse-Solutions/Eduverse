@@ -61,6 +61,8 @@ class InstitutionCheckMiddleware(MiddlewareMixin):
     def process_request(self, request):
         user: User = request.user
         if user.is_authenticated and user.role == "Super Admin":
+            if user.is_superuser:
+                return  # don't show the message to the site admin
             if user.institution is None:
                 messages.warning(
                     request,
