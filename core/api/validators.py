@@ -1,11 +1,24 @@
+from datetime import date, datetime
+
 from rest_framework import serializers
 
 from core.models import Institution, User
+from students.models import Guardian
+
+unneeded_fields = [
+    "url",
+    "links",
+    "count",
+    "total_pages",
+    "current_page",
+    "results",
+]
 
 
-class UserCreationInstitutionValidationMixin:
+class UserValidationMixin:
     """
-    A mixin class for validating institution-related data.
+    A mixin class for validating user information before passing it to the
+    backend for saving.
 
     This mixin provides validation logic for institution-related data, such as
     checking if the institution field is empty, verifying the user's
@@ -46,18 +59,44 @@ class UserCreationInstitutionValidationMixin:
                 "No data was provided to the serializer."
             )
 
-        user_data = data.pop("user", data)
+        if "view" in request.parser_context:
+            view = request.parser_context.get("view")
+            response = view.get(request)
+            if "guardian" in response.data:
+                guardian_id = response.data.get("guardian")
+                if guardian_id:
+                    response.data["guardian"] = Guardian.objects.get(
+                        id=guardian_id
+                    )
+            user_data = response.data.get("user", response.data)
+            if user_data:
+                for field in unneeded_fields:
+                    user_data.pop(field, None)
+
+        if len(user_data) == 0:
+            user_data = data.pop("user", data)
 
         if user_data is None:
             raise serializers.ValidationError("No user data was provided.")
 
+        if "institution" in user_data:
+            if not isinstance(user_data.get("institution"), Institution):
+                user_data["institution"] = Institution.objects.get(
+                    id=user_data["institution"]
+                )
+
+        date_of_birth = user_data.get("date_of_birth", None)
+        if date_of_birth:
+            if not isinstance(date_of_birth, date):
+                user_data["date_of_birth"] = date.fromisoformat(date_of_birth)
+
         new_user = User(**user_data)
 
         if request.method == "POST":
-            if not request_user.institution:
+            if not (request_user.is_superuser or request_user.institution):
                 raise serializers.ValidationError(
                     {
-                        "institution": "You must belong to an institution to "
+                        "user": "You must belong to an institution to "
                         "perform this action.",
                     },
                     "does_not_have_institution",
@@ -65,37 +104,32 @@ class UserCreationInstitutionValidationMixin:
 
             if not new_user.institution:
                 raise serializers.ValidationError(
-                    {"institution": "The institution field cannot be empty."},
+                    {"user": "The institution field cannot be empty."},
                     "required",
                 )
 
             if request_user.role not in ["Admin", "Super Admin"]:
                 raise serializers.ValidationError(
                     {
-                        "institution": "You must be an admin to create a user.",
+                        "user": "You must be an admin to create a user.",
                     },
                     "invalid_role",
                 )
 
         if request.method in ["PUT", "PATCH", "DELETE"]:
-            if not request_user.institution:
+            if (
+                not request_user.is_superuser
+                and request_user != new_user
+                and request_user.institution != new_user.institution
+                and request_user != new_user.institution.owner
+            ):
                 raise serializers.ValidationError(
                     {
-                        "institution": "You must belong to create an "
-                        "institution to perform this action.",
-                    }
+                        "user": "You do not have permission to modify this "
+                        "object."
+                    },
+                    "does_not_have_institution_and_not_admin",
                 )
-            if request.method in ["PATCH"]:
-                # in case of a patch, let's ensure the user already exists and
-                # then update their data with their existing one before
-                # proceeding to the partial update
-                user = self.context.get("user")
-                if not user:
-                    pk = request.parser_context.get("kwargs").get("pk")
-                    user = User.objects.get(
-                        pk=pk, institution_id=request_user.institution.id
-                    )
-                new_user.__dict__.update(user.__dict__)
 
             if not (
                 request.user.is_superuser
@@ -104,19 +138,29 @@ class UserCreationInstitutionValidationMixin:
                 # no one should be able to modify the details of other users
                 # from another institution
                 raise serializers.ValidationError(
-                    {"institution": "Invalid operation, user not found."},
+                    {"user": "Invalid operation, user not found."},
                     "invalid_institution",
                 )
 
-            if not Institution.objects.filter(
-                id=new_user.institution.id
-            ).exists():
+        if request_user.is_superuser:
+            chk_user = new_user
+        else:
+            chk_user = request_user
+
+        if chk_user.role == "Super Admin":
+            # ensure that Institution owners are at least 18 years old
+            if datetime.today().year - chk_user.date_of_birth.year < 18:
                 raise serializers.ValidationError(
-                    {
-                        "institution": "The institution does not exist.",
-                    },
-                    "invalid_institution",
+                    {"user": "Institution owners must be at least 18 years."},
+                    "age_restriction",
                 )
+
+        if new_user.date_of_birth > date.today():
+            raise serializers.ValidationError(
+                {"date_of_birth": "Date of birth cannot be in the future."},
+                code="invalid",
+            )
+        new_user.__dict__.update(data)
         return data
 
 
@@ -126,8 +170,16 @@ class InstitutionValidationMixin:
         request_user = request.user
         new_institution = Institution(**data)
 
+        if request.method in ["PUT", "POST"]:
+            if not new_institution.phone_number:
+                raise serializers.ValidationError(
+                    {
+                        "phone_number": "Phone number is required.",
+                    },
+                    "required",
+                )
         if request.method == "POST":
-            if request_user.institution:
+            if request_user.institution and not request_user.is_superuser:
                 raise serializers.ValidationError(
                     {
                         "institution": "You must not belong to an institution "
