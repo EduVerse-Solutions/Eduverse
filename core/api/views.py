@@ -66,7 +66,13 @@ class UserViewSet(viewsets.ModelViewSet):
             if user.is_superuser:
                 return User.objects.all()
 
-            return User.objects.filter(institution_id=user.institution_id)
+            if user.institution:
+                # Return all users in the institution that the user belongs to
+                return User.objects.filter(institution_id=user.institution_id)
+
+            # for users who are not superusers and do not belong to any
+            # institution return only their user object
+            return User.objects.filter(pk=user.pk)
 
 
 class InstitutionViewSet(viewsets.ModelViewSet):
@@ -82,7 +88,8 @@ class InstitutionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the queryset of institutions based on the user's authentication and role.
+        Returns the queryset of institutions based on the user's
+        authentication and role.
 
         Returns:
             queryset: The queryset of institutions.
@@ -92,7 +99,10 @@ class InstitutionViewSet(viewsets.ModelViewSet):
             if user.is_superuser:
                 return Institution.objects.all()
 
-            return Institution.objects.filter(id=user.institution_id)
+            if user.institution_id:
+                return Institution.objects.filter(id=user.institution_id)
+
+            return Institution.objects.none()
 
     def get_serializer_context(self):
         return {"request": self.request}
