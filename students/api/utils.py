@@ -1,7 +1,10 @@
+from django.db.utils import IntegrityError
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
 from core.api.serializers import UserSerializer
+from students.models import Guardian
 
 
 class UserUpdateMixin:
@@ -32,15 +35,21 @@ class UserUpdateMixin:
 
             if "user" in request.data:
                 user_data = request.data.pop("user")
-                user_serializer = UserSerializer(
-                    user,
-                    data=user_data,
-                    partial=True,
-                    context={"request": request, "user": user},
-                )
-                user_serializer.is_valid(raise_exception=True)
+            else:
+                user_data = vars(user)
 
-                user_serializer.save()
+            user_data.pop("url", None)
+            user_serializer = UserSerializer(
+                user,
+                data=user_data,
+                partial=True,
+                context={"request": request, "user": user},
+            )
+            user_serializer.is_valid(raise_exception=True)
+            user_serializer.save()
+
+            if partial:
+                request.data["user"] = user_data
 
             serializer = self.get_serializer(
                 instance, data=request.data, partial=partial
@@ -49,19 +58,63 @@ class UserUpdateMixin:
             self.perform_update(serializer)
 
             if getattr(instance, "_prefetched_objects_cache", None):
-                # If 'prefetch_related' has been applied to a queryset, we need to
-                # forcibly invalidate the prefetch cache on the instance.
+                # If 'prefetch_related' has been applied to a queryset, we
+                # need to forcibly invalidate the prefetch cache on the
+                # instance.
                 instance._prefetched_objects_cache = {}
 
             return Response(serializer.data)
 
-        except Exception as e:
-            if "detail" in vars(e):
+        except Exception as error:
+            # check for django unique key constraints, these are not actual
+            # errors per project, we will ignore this one and get the results
+            # we asked for
+            if isinstance(error, IntegrityError) or "already exists" in str(
+                error
+            ):
+                view = request.parser_context.get("view")
+                user.__dict__.update(user_data)
+                user.save()
+                guardian_id = request.data.get("guardian")
+
+                if guardian_id:
+                    instance.guardian = get_object_or_404(
+                        Guardian, id=guardian_id
+                    )
+                else:
+                    try:
+                        guardian = Guardian.objects.get(wards=instance)
+                        guardian.wards.remove(instance)
+                    except Guardian.DoesNotExist:
+                        pass
+
+                    # Set the guardian of the instance to None
+                    instance.guardian = None
+
+                # Update the instance with the rest of the data
+                instance.__dict__.update(request.data)
+                instance.save()
+                response = view.get(request)
+                return Response(response.data)
+
+            elif "detail" in vars(error) and isinstance(error.detail, dict):
                 return Response(
-                    {"error": {k: v for k, v in e.detail.items()}},
+                    {"error": {k: v for k, v in error.detail.items()}},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            return Response(str(e), status=status.HTTP_417_EXPECTATION_FAILED)
+            return Response(
+                {
+                    "error": {
+                        str(error.__class__.__name__): [
+                            error.args,
+                            error.__traceback__.tb_frame.f_globals[
+                                "__file__"
+                            ],
+                        ]
+                    }
+                },
+                status=status.HTTP_417_EXPECTATION_FAILED,
+            )
 
 
 class UserDestroyMixin:
@@ -94,9 +147,6 @@ class UserDestroyMixin:
         """
         instance = self.get_object()
         if instance.wards:
-            for ward in instance.wards:
-                ward.delete()
-        user = instance.user
+            instance.wards.all().delete()
         self.perform_destroy(instance)
-        user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
