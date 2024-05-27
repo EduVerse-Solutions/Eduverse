@@ -45,6 +45,22 @@ class Validators:
             Validators.validate_name_fields(user.first_name, user.last_name)
             Validators.validate_date_of_birth(user.date_of_birth)
 
+            if user.role == "Super Admin":
+                if isinstance(user.date_of_birth, str):
+                    year = datetime.datetime.fromisoformat(
+                        user.date_of_birth
+                    ).year
+                else:
+                    year = user.date_of_birth.year
+
+                if datetime.datetime.now().year - year < 18:
+                    raise (
+                        ValidationError(
+                            "You must be at least 18 years old to create "
+                            "an institution."
+                        )
+                    )
+
         # Add similar checks for institution if needed
         if institution:
             if isinstance(institution, models.Institution):
@@ -53,7 +69,8 @@ class Validators:
                 institution = models.Institution(**institution)
             else:
                 raise ValueError(
-                    "institution must be an Institution instance or a dictionary"
+                    "institution must be an Institution instance or a "
+                    "dictionary"
                 )
 
             Validators.validate_user_is_owner(
@@ -218,7 +235,8 @@ class Validators:
                 institution = models.Institution(**institution)
             else:
                 raise ValueError(
-                    "institution must be an Institution instance or a dictionary"
+                    "institution must be an Institution instance or a "
+                    "dictionary"
                 )
 
             if user.institution != institution:
@@ -264,4 +282,9 @@ class Validators:
         if user.role != "Super Admin":
             raise ValidationError(
                 "You are not permitted to perform this action."
+            )
+
+        if datetime.datetime.now().year - user.date_of_birth.year < 18:
+            raise ValidationError(
+                "User must be at least 18 years old to perform this action."
             )
