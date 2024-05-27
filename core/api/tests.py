@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 from core.api import data as utils_data
 from core.api import utils
-from core.models import Institution
+from core.models import Institution, User
 
 
 class APIRootViewTest(APITestCase):
@@ -186,9 +186,18 @@ class UserViewSetTest(APITestCase):
 
 
 class InstitutionViewSetTest(APITestCase):
+    """
+    Test case for the InstitutionViewSet class.
+    """
+
     def setUp(self):
+        """
+        Set up the test environment.
+        """
         self.user = utils.create_super_admin(assign_institution=True)
         self.institution = Institution.objects.first()
+        self.institution.name = "Test Institution"
+        self.institution.save()
         self.assertEqual(Institution.objects.count(), 1)
         self.assertEqual(self.institution, self.user.institution)
 
@@ -197,16 +206,22 @@ class InstitutionViewSetTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
 
     def test_list_institutions(self):
+        """
+        Test the list institutions API endpoint.
+        """
         response = self.client.get(reverse("core-api:institution-list"))
         results = response.data.get("results")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(results), 1)
         institution = results[0]
-        self.assertEqual(institution.get("name"), self.institution.name)
+        self.assertEqual(institution.get("name"), "Test Institution")
         self.assertEqual(institution.get("owner"), self.institution.owner_id)
 
     def test_create_institution(self):
+        """
+        Test the create institution API endpoint.
+        """
         institution_data = utils_data.institution_list[1].copy()
         institution_data["name"] = "New Institution"
         institution_data["owner"] = self.user.id
@@ -223,6 +238,9 @@ class InstitutionViewSetTest(APITestCase):
         self.assertTrue(Institution.objects.filter(name="New Institution"))
 
     def test_create_institution_with_admin_from_another_institution(self):
+        """
+        Test creating an institution with an admin from another institution.
+        """
         new_admin_data = utils_data.user_list[0].copy()
         new_admin_data["email"] = "fakeadmin@email.com"
         new_admin_data["username"] = "fake_admin"
@@ -250,33 +268,49 @@ class InstitutionViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Institution.objects.count(), 1)
 
-    # def test_retrieve_institution(self):
-    #     response = self.client.get(
-    #         f"/api/institutions/{self.institution.id}/"
-    #     )
-    #     response.user = self.user
-    #     response = self.view(response, pk=self.institution.id)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.data["name"], "Test Institution")
+    def test_retrieve_institution(self):
+        """
+        Test the retrieve institution API endpoint.
+        """
+        url = reverse(
+            "core-api:institution-detail", kwargs={"pk": self.institution.id}
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["name"], "Test Institution")
 
-    # def test_update_institution(self):
-    #     response = self.client.put(
-    #         f"/api/institutions/{self.institution.id}/",
-    #         {"name": "Updated Institution"},
-    #     )
-    #     response.user = self.user
-    #     response = self.view(response, pk=self.institution.id)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(
-    #         Institution.objects.get(id=self.institution.id).name,
-    #         "Updated Institution",
-    #     )
+    def test_partial_update_institution(self):
+        """
+        Test the partial update institution API endpoint.
+        """
+        url = reverse(
+            "core-api:institution-detail", kwargs={"pk": self.institution.id}
+        )
+        response = self.client.patch(
+            url,
+            {"name": "Updated Institution"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Institution.objects.get(id=self.institution.id).name,
+            "Updated Institution",
+        )
 
-    # def test_delete_institution(self):
-    #     response = self.client.delete(
-    #         f"/api/institutions/{self.institution.id}/"
-    #     )
-    #     response.user = self.user
-    #     response = self.view(response, pk=self.institution.id)
-    #     self.assertEqual(response.status_code, 204)
-    #     self.assertEqual(Institution.objects.count(), 0)
+    def test_delete_institution(self):
+        """
+        Test the delete institution API endpoint.
+        """
+        url = reverse(
+            "core-api:institution-detail", kwargs={"pk": self.institution.id}
+        )
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Institution.objects.count(), 0)
+
+        # now try retrieving the deleted instance, deleting an institution
+        # deletes the user as well
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # finally verify the user was deleted
+        self.assertEqual(User.objects.count(), 0)
