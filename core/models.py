@@ -34,7 +34,7 @@ class User(AbstractUser):
     fullname = models.CharField(max_length=100, null=False, blank=False)
     email = models.EmailField(unique=True, null=False, blank=False)
     date_of_birth = models.DateField(null=False, blank=False)
-    address = models.CharField(max_length=255, null=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
     sex = models.CharField(
         max_length=10, choices=SEX, null=False, blank=False
     )
@@ -72,6 +72,8 @@ class User(AbstractUser):
             self.sex = self.sex.capitalize()
 
         self.clean()
+        self.first_name = self.first_name.title()
+        self.last_name = self.last_name.title()
         self.fullname = f"{self.first_name.strip()} {self.last_name.strip()}"
         self.fullname = self.fullname.title()
 

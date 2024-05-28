@@ -45,6 +45,7 @@ class Guardian(models.Model):
         null=False,
     )
     wards = models.ManyToManyField("Student", related_name="guardians")
+    profession = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self) -> str:
         admission_numbers = ", ".join(
@@ -65,8 +66,9 @@ class Guardian(models.Model):
     def delete(self, *args, **kwargs):
         """Delete all the students when a guardian is deleted."""
         self.wards.all().delete()
-        self.delete()
+        user = self.user
         super().delete(*args, **kwargs)
+        user.delete()
 
     class Meta:
         ordering = ["id"]

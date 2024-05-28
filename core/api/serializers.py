@@ -2,14 +2,12 @@ from rest_framework import serializers
 
 from core.api.validators import (
     InstitutionValidationMixin,
-    UserCreationInstitutionValidationMixin,
+    UserValidationMixin,
 )
 from core.models import Institution, User
 
 
-class UserSerializer(
-    UserCreationInstitutionValidationMixin, serializers.ModelSerializer
-):
+class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="core-api:user-detail"
     )
@@ -27,7 +25,6 @@ class UserSerializer(
             "address",
             "sex",
             "phone_number",
-            "role",
             "institution",
         ]
 

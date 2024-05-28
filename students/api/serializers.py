@@ -3,6 +3,10 @@ from rest_framework.response import Response
 
 from core.api.serializers import UserSerializer
 from core.models import User
+from students.api.validators import (
+    GuardianValidationMixin,
+    StudentValidationMixin,
+)
 from students.models import Guardian, Student
 
 
@@ -15,7 +19,6 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = "__all__"
-        read_only_fields = ["id"]
 
     def create(self, validated_data):
         """
@@ -54,22 +57,13 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
         Returns:
             The updated instance.
         """
-        wards_data = validated_data.pop("wards", [])
         user_data = validated_data.pop("user", None)
 
         if user_data:
-            print("over here")
             user = instance.user
             for attr, value in user_data.items():
                 setattr(user, attr, value)
             user.save()
-
-        if wards_data:
-            # there are new wards for a Guardian
-            ward_ids = [ward.id for ward in wards_data]
-            wards = Student.objects.filter(id__in=ward_ids)
-
-            instance.wards.set(wards)
 
         elif partial:
             for attr, value in validated_data.items():
@@ -92,29 +86,61 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
         user = instance.user
         user.delete()
         if instance.wards:
-            for ward in instance.wards:
-                ward.delete()
+            # disassociate wards from guardian
+            instance.wards.clear()
 
         instance.delete()
 
 
-class StudentSerializer(BaseUserModelSerializer):
+class StudentSerializer(StudentValidationMixin, BaseUserModelSerializer):
+    """
+    Serializer class for the Student model.
+
+    This serializer is used to convert the Student model instances into JSON
+    representations and vice versa. It also includes validation logic for the
+    student data.
+
+    Attributes:
+        url: A hyperlink identity field that represents the URL of the student
+        detail view.
+
+    Meta:
+        model: The Student model that this serializer is associated with.
+    """
+
     url = serializers.HyperlinkedIdentityField(
         view_name="students:student-detail"
     )
 
     class Meta(BaseUserModelSerializer.Meta):
         model = Student
-        # depth = 1
 
-    # guardian = serializers.HyperlinkedRelatedField(
-    #     view_name="students:guardian-detail",
-    #     queryset=Guardian.objects.all(),
-    #     required=False,
-    # )
+    # let's create an update method that also looks out for the guardian field
+    # and sets it on the student
+    def update(self, instance, validated_data, partial=False):
+        """
+        Update an existing instance of the model with the given validated data.
+
+        Args:
+            instance: The instance to be updated.
+            validated_data (dict): The validated data for updating the instance.
+            partial (bool, optional): Whether to perform a partial update or
+            not. Defaults to True.
+
+        Returns:
+            The updated instance.
+        """
+        guardian = validated_data.pop("guardian", None)
+        print(validated_data)
+
+        if guardian:
+            instance.guardian = guardian
+            instance.save()
+
+        return super().update(instance, validated_data, partial)
 
 
-class GuardianSerializer(BaseUserModelSerializer):
+class GuardianSerializer(GuardianValidationMixin, BaseUserModelSerializer):
     """
     Serializer for the Guardian model.
 
@@ -135,9 +161,19 @@ class GuardianSerializer(BaseUserModelSerializer):
     )
 
     def create(self, validated_data):
+        """
+        Create a new guardian instance with the provided validated data.
+
+        Args:
+            validated_data (dict): The validated data for creating the guardian.
+
+        Returns:
+            Guardian: The created guardian instance.
+        """
         wards = validated_data.pop("wards", [])
         ward_ids = [ward.id for ward in wards]
         user_data = validated_data.pop("user")
+        user_data["role"] = self.Meta.model.__name__
         user, created = User.objects.get_or_create(
             email=user_data.get("email"), defaults=user_data
         )
@@ -145,37 +181,10 @@ class GuardianSerializer(BaseUserModelSerializer):
             guardian = Guardian.objects.create(user=user)
             wards = Student.objects.filter(id__in=ward_ids)
             guardian.wards.set(ward_ids)
+
+            # for each ward, set their guardian field to this guardian
+            for ward in wards:
+                ward.guardian = guardian
+                ward.save()
+
             return guardian
-        else:
-            raise serializers.ValidationError(
-                "A user with this email already exists..."
-            )
-
-    def validate(self, data):
-        """
-        Validates that the wards are Student instances.
-
-        This method is called during the validation process of the serializer.
-        It checks if all the wards provided are instances of the Student model.
-        If any ward is not an instance of the Student model, a validation error
-        is raised.
-
-        Args:
-            data (dict): The data to be validated.
-
-        Raises:
-            serializers.ValidationError: If any ward is not an instance of the
-                Student model.
-
-        Returns:
-            dict: The validated data.
-        """
-        wards = data.get("wards")
-
-        if not all(isinstance(ward, Student) for ward in wards):
-            raise serializers.ValidationError(
-                {"wards": "All wards must be Student instances"},
-                code="invalid",
-            )
-
-        return data
