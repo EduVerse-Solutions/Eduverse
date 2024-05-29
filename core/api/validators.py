@@ -79,11 +79,14 @@ class UserValidationMixin:
         if user_data is None:
             raise serializers.ValidationError("No user data was provided.")
 
-        if "institution" in user_data:
-            if not isinstance(user_data.get("institution"), Institution):
-                user_data["institution"] = Institution.objects.get(
-                    id=user_data["institution"]
-                )
+        if (
+            "institution" in user_data
+            and user_data.get("institution")
+            and not isinstance(user_data.get("institution"), Institution)
+        ):
+            user_data["institution"] = Institution.objects.get(
+                id=user_data["institution"]
+            )
 
         date_of_birth = user_data.get("date_of_birth", None)
         if date_of_birth:
@@ -102,7 +105,7 @@ class UserValidationMixin:
                     "does_not_have_institution",
                 )
 
-            if not new_user.institution:
+            if not request_user.is_superuser and not new_user.institution:
                 raise serializers.ValidationError(
                     {"user": "The institution field cannot be empty."},
                     "required",
