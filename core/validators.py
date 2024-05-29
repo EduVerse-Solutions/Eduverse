@@ -45,22 +45,6 @@ class Validators:
             Validators.validate_name_fields(user.first_name, user.last_name)
             Validators.validate_date_of_birth(user.date_of_birth)
 
-            if user.role == "Super Admin":
-                if isinstance(user.date_of_birth, str):
-                    year = datetime.datetime.fromisoformat(
-                        user.date_of_birth
-                    ).year
-                else:
-                    year = user.date_of_birth.year
-
-                if datetime.datetime.now().year - year < 18:
-                    raise (
-                        ValidationError(
-                            "You must be at least 18 years old to create "
-                            "an institution."
-                        )
-                    )
-
         # Add similar checks for institution if needed
         if institution:
             if isinstance(institution, models.Institution):
@@ -81,6 +65,23 @@ class Validators:
             Validators.validate_institution_creator(
                 user=user, user_admin=user_admin
             )
+
+            if user.role == "Super Admin":
+                if isinstance(user.date_of_birth, str):
+                    year = datetime.datetime.fromisoformat(
+                        user.date_of_birth
+                    ).year
+                else:
+                    year = user.date_of_birth.year
+                if datetime.datetime.now().year - year < 18:
+                    print(user)
+                    print(user.date_of_birth)
+                    raise (
+                        ValidationError(
+                            "You must be at least 18 years old to create "
+                            "an institution."
+                        )
+                    )
 
     @staticmethod
     def validate_date_of_birth(date_of_birth: str | datetime.date):
