@@ -31,6 +31,12 @@ class Student(models.Model):
         self.clean()
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs) -> None:
+        """Delete the user instance when the student is deleted"""
+        user = self.user
+        super().delete(*args, **kwargs)
+        user.delete()
+
     class Meta:
         ordering = ["id"]
 
@@ -46,6 +52,7 @@ class Guardian(models.Model):
     )
     wards = models.ManyToManyField("Student", related_name="guardians")
     profession = models.CharField(max_length=100, null=True, blank=True)
+    relationship = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self) -> str:
         admission_numbers = ", ".join(
