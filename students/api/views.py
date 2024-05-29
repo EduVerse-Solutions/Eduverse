@@ -30,9 +30,12 @@ class StudentViewSet(
             if user.is_superuser:
                 return Student.objects.all()
 
-            return Student.objects.filter(
-                user__institution_id=user.institution.id, user__role="Student"
-            )
+            if user.institution:
+                return Student.objects.filter(
+                    user__institution_id=user.institution.id
+                )
+
+            return Student.objects.none()
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -65,7 +68,10 @@ class GuardianViewSet(
             if user.is_superuser:
                 return Guardian.objects.all()
 
-            return Guardian.objects.filter(
-                user__institution_id=user.institution_id,
-                user__role="Guardian",
-            )
+            if user.institution:
+                return Guardian.objects.filter(
+                    user__institution_id=user.institution_id,
+                    user__role="Guardian",
+                )
+
+            return Guardian.objects.none()

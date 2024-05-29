@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from core.api.serializers import UserSerializer
-from students.models import Guardian
+from students.models import Guardian, Student
 
 
 class UserUpdateMixin:
@@ -48,8 +48,8 @@ class UserUpdateMixin:
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
 
-            if partial:
-                request.data["user"] = user_data
+            # ensure there's user context in the request data
+            request.data["user"] = user_data
 
             serializer = self.get_serializer(
                 instance, data=request.data, partial=partial
@@ -75,7 +75,7 @@ class UserUpdateMixin:
                 view = request.parser_context.get("view")
                 user.__dict__.update(user_data)
                 user.save()
-                guardian_id = request.data.get("guardian")
+                guardian_id = request.data.get("guardian", None)
 
                 if guardian_id:
                     instance.guardian = get_object_or_404(
@@ -83,13 +83,28 @@ class UserUpdateMixin:
                     )
                 else:
                     try:
-                        guardian = Guardian.objects.get(wards=instance)
-                        guardian.wards.remove(instance)
+                        guardian = Guardian.objects.get(id=instance.id)
+                        if "wards" in request.data:
+                            new_wards = set(request.data.pop("wards", []))
+                            current_wards = set(
+                                guardian.wards.values_list("id", flat=True)
+                            )
+
+                            # Remove wards that are not in the new list
+                            for ward_id in current_wards - new_wards:
+                                ward = Student.objects.get(id=ward_id)
+                                guardian.wards.remove(ward)
+                                ward.guardian = None
+                                ward.save()
+
+                            # Add wards that are not in the current list
+                            for ward_id in new_wards - current_wards:
+                                ward = Student.objects.get(id=ward_id)
+                                guardian.wards.add(ward)
+                                ward.guardian = guardian
+                                ward.save()
                     except Guardian.DoesNotExist:
                         pass
-
-                    # Set the guardian of the instance to None
-                    instance.guardian = None
 
                 # Update the instance with the rest of the data
                 instance.__dict__.update(request.data)
@@ -146,7 +161,5 @@ class UserDestroyMixin:
 
         """
         instance = self.get_object()
-        if instance.wards:
-            instance.wards.all().delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)

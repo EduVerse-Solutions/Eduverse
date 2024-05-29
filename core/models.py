@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 from core.validators import Validators
@@ -26,6 +27,8 @@ class User(AbstractUser):
 
     SEX = [("M", "Male"), ("F", "Female")]
 
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(default=timezone.now)
     username = models.CharField(
         max_length=20, null=False, blank=False, unique=True
     )
@@ -76,6 +79,8 @@ class User(AbstractUser):
         self.last_name = self.last_name.title()
         self.fullname = f"{self.first_name.strip()} {self.last_name.strip()}"
         self.fullname = self.fullname.title()
+        self.updated_at = timezone.now()
+        self.created_at = self.date_joined
 
         super().save(*args, **kwargs)
 

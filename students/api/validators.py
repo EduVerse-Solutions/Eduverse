@@ -223,6 +223,11 @@ class GuardianValidationMixin(BaseValidationMixin):
         guardian = User(**user_data)
 
         wards = data.get("wards")
+        if len(wards) == 0:
+            raise serializers.ValidationError(
+                {"guardian_wards": "At least one ward is required"},
+                code="required",
+            )
 
         if not all(isinstance(ward, Student) for ward in wards):
             raise serializers.ValidationError(
@@ -233,7 +238,8 @@ class GuardianValidationMixin(BaseValidationMixin):
         if any(
             ward
             for ward in wards
-            if ward.date_of_birth < guardian.date_of_birth
+            if ward.user.date_of_birth
+            < date.fromisoformat(guardian.date_of_birth)
         ):
             raise serializers.ValidationError(
                 {"guardian": "Wards can't be older than guardian"}
