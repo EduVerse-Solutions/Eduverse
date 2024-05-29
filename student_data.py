@@ -17,7 +17,6 @@ for _ in range(4):
         "date_of_birth": fake.date_of_birth().strftime("%Y-%m-%d"),
         "address": fake.address(),
         "sex": random.choice(["M", "F"]),  # nosec
-        "phone_number": fake.phone_number(),
         "institution": random.randint(1, 10),  # nosec
     }
 
