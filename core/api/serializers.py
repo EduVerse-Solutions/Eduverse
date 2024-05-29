@@ -16,6 +16,8 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
         model = User
         fields = [
             "url",
+            "created_at",
+            "updated_at",
             "username",
             "first_name",
             "last_name",
@@ -26,9 +28,16 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
             "sex",
             "phone_number",
             "institution",
+            "role",
         ]
 
-        read_only_fields = ["url", "fullname"]
+        read_only_fields = [
+            "url",
+            "fullname",
+            "role",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class InstitutionSerializer(
