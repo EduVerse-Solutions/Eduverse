@@ -1,10 +1,89 @@
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.response import Response
 
 from core.api.serializers import UserSerializer
 from students.models import Guardian, Student
+from teachers.models import Class
+
+
+class UserCreateMixin:
+    """
+    A mixin class for creating a user instance.
+
+    This mixin provides a method for creating a user instance in a view set.
+    """
+
+    def create(self, request):
+        """
+        Create a user instance.
+
+        This method creates a user instance based on the request data.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object containing the created user data.
+        """
+        try:
+            user_data = request.data.pop("user")
+            user_data["role"] = self.serializer_class.Meta.model.__name__
+            user_serializer = UserSerializer(
+                data=user_data, context={"request": request}
+            )
+            user_serializer.is_valid(raise_exception=True)
+
+            request.data["user"] = user_data
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Save the user instance after all validations are done
+
+            class_id = request.data.get("class_id", None)
+            if class_id:
+                request.data["class_id"] = get_object_or_404(
+                    Class, id=class_id
+                )
+            else:
+                if (
+                    self.serializer_class.Meta.model.__name__ == "Student"
+                    and request.method in ["PUT", "POST"]
+                ):
+                    raise serializers.ValidationError(
+                        {"class_id": "Class is required."},
+                    )
+
+            self.perform_create(serializer)
+
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers,
+            )
+
+        except Exception as error:
+            if "detail" in vars(error) and isinstance(error.detail, dict):
+                return Response(
+                    {"error": {k: v for k, v in error.detail.items()}},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            return Response(
+                {
+                    "error": {
+                        str(error.__class__.__name__): [
+                            error.args,
+                            error.__traceback__.tb_frame.f_globals[
+                                "__file__"
+                            ],
+                            error.__traceback__.tb_lineno,
+                        ]
+                    }
+                },
+                status=status.HTTP_417_EXPECTATION_FAILED,
+            )
 
 
 class UserUpdateMixin:
@@ -77,6 +156,17 @@ class UserUpdateMixin:
                 user.save()
                 guardian_id = request.data.get("guardian", None)
 
+                class_id = request.data.get("class_id", None)
+                if class_id and isinstance(instance, Student):
+                    instance.class_id = get_object_or_404(Class, id=class_id)
+                else:
+                    if request.method != "PATCH" and isinstance(
+                        instance, Student
+                    ):
+                        raise serializers.ValidationError(
+                            {"class_id": "Class is required."},
+                            code="required",
+                        ) from error
                 if guardian_id:
                     instance.guardian = get_object_or_404(
                         Guardian, id=guardian_id

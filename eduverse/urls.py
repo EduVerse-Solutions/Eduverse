@@ -20,6 +20,7 @@ urlpatterns = [
     path("api/docs/", SpectacularRedocView.as_view(), name="api-docs"),
     path("api/", include("core.api.urls")),
     path("api/", include("students.api.urls")),
+    path("api/", include("teachers.api.urls")),
     path("api/auth/", include("rest_framework.urls")),
     re_path(r"^oauth/", include("social_django.urls", namespace="social")),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),

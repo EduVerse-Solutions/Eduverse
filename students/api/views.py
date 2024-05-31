@@ -1,13 +1,24 @@
 from rest_framework import permissions, viewsets
 
 from students.api.serializers import GuardianSerializer, StudentSerializer
-from students.api.utils import UserDestroyMixin, UserUpdateMixin
+from students.api.utils import (
+    UserCreateMixin,
+    UserDestroyMixin,
+    UserUpdateMixin,
+)
 from students.models import Guardian, Student
 
 
-class StudentViewSet(
-    UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
+class BaseViewSet(
+    UserCreateMixin,
+    UserUpdateMixin,
+    UserDestroyMixin,
+    viewsets.ModelViewSet,
 ):
+    pass
+
+
+class StudentViewSet(BaseViewSet):
     """
     A view class for handling Student objects.
 
@@ -20,7 +31,8 @@ class StudentViewSet(
 
     def get_queryset(self):
         """
-        Returns the queryset of students based on the user's authentication and role.
+        Returns the queryset of students based on the user's authentication
+        and role.
 
         Returns:
             queryset: The queryset of students.
@@ -41,9 +53,7 @@ class StudentViewSet(
         return {"request": self.request}
 
 
-class GuardianViewSet(
-    UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
-):
+class GuardianViewSet(BaseViewSet):
     """
     A view class for handling Guardian objects.
 
@@ -58,7 +68,8 @@ class GuardianViewSet(
         Returns the queryset of guardians based on the user's role and institution.
 
         If the user is a superuser, it returns all Guardian objects.
-        If the user is not a superuser, it returns Guardian objects with the same institution as the user.
+        If the user is not a superuser, it returns Guardian objects with the
+        same institution as the user.
 
         Returns:
             QuerySet: The queryset of guardians.
