@@ -41,8 +41,14 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "django_filters",
+    "tailwind",
+    "theme",
+    "django_browser_reload",
 ]
 
+
+TAILWIND_APP_NAME = "theme"
+NPM_BIN_PATH = '/usr/bin/npm'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -55,6 +61,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.AdminAccessMiddleware",
     "core.middleware.InstitutionCheckMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

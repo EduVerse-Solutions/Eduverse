@@ -1,5 +1,299 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_js %}
+	<script src="{% static 'core/js/main.js' %}"></script>
+{% endblock extra_js %}
 
 {% block content %}
+
+{% comment %} Hero section {% endcomment %}
+
+<section class="relative h-screen w-full">
+    <div class="absolute inset-0 flex overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100 hero-slide" style="background-image: url('{% static 'core/images/hero_image1.jpg'%}')">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative z-10 flex items-center justify-center h-full text-center text-white">
+          <div class="space-y-4">
+            <h1 class="text-4xl md:text-5xl animate-slide-up">Welcome to EDUVERSE</h1>
+            <div class="h-1 w-24 bg-white mx-auto my-4 animate-slide-in-left"></div>
+            <p class="text-2xl md:text-3xl animate-slide-in-right">Empowering Education</p>
+            <p class="text-2xl md:text-3xl animate-slide-in-left">Your
+            Ultimate School Management Solution</p>
+            {% if user.is_authenticated %}
+              <p>Hello {{ user.fullname }}</p>
+            {% else %}
+            <div class="mt-6 pt-12 flex justify-center space-x-4">
+              <a href="{% url 'register' %}" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600">Register</a>
+              <a href="{% url 'login' %}" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">Sign In</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0 hero-slide" style="background-image: url('{% static 'core/images/hero_image2.png'%}')">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative z-10 flex items-center justify-center h-full text-center text-white">
+          <div class="space-y-4">
+            <h1 class="text-4xl md:text-5xl animate-slide-up">Seamless Integration</h1>
+            <div class="h-1 w-24 bg-white mx-auto my-4 animate-slide-in-left"></div>
+            <p class="text-2xl md:text-3xl animate-slide-in-right">Connecting Students, Teachers, and Parents</p>
+            <p class="text-2xl md:text-3xl animate-slide-in-left">For a Holistic Learning Experience</p>
+            {% if user.is_authenticated %}
+              <p>Hello {{ user.fullname }}</p>
+            {% else %}
+            <div class="mt-6 pt-12 flex justify-center space-x-4">
+              <a href="{% url 'register' %}" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600">Register</a>
+              <a href="{% url 'login' %}" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">Sign In</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0 hero-slide" style="background-image: url('{% static 'core/images/hero_image3.jpg'%}')">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative z-10 flex items-center justify-center h-full text-center text-white">
+          <div class="space-y-4">
+            <h1 class="text-4xl md:text-5xl animate-slide-up">Innovative Solutions</h1>
+            <div class="h-1 w-24 bg-white mx-auto my-4 animate-slide-in-left"></div>
+            <p class="text-2xl md:text-3xl animate-slide-in-right">Enhancing Educational Efficiency</p>
+            <p class="text-2xl md:text-3xl animate-slide-in-left">With State-of-the-Art Tools</p>
+            {% if user.is_authenticated %}
+              <p>Hello {{ user.fullname }}</p>
+            {% else %}
+            <div class="mt-6 pt-12 flex justify-center space-x-4">
+              <a href="{% url 'register' %}" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600">Register</a>
+              <a href="{% url 'login' %}" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">Sign In</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% comment %} feature section {% endcomment %}
+
+  <section id="Features" class="bg-blue-100-500 py-40 w-full">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-2xl text-green-500 font-semibold">FEATURES</h2>
+        <h1 class="mt-2 text-4xl font-extrabold text-blue-900">Our Features & Services</h1>
+      </div>
+      <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:w-3/5 mx-auto">
+        <!-- Card 1 -->
+        <div class="bg-white text-blue-500  rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/attendance.jpeg' %} " alt="Attendance">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Attendance Management:</h3>
+            <p class="mt-2">Effortlessly manage student attendance records with our automated system. Track attendance in real-time, view attendance reports, and receive alerts for absentees.</p>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-white text-blue-500 rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/gradebook.jpeg' %}" alt="Gradebook">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Gradebook Management:</h3>
+            <p class="mt-2">Maintain a detailed record of student grades and assignments. Easily input, calculate, and manage grades for various subjects. Access grade reports to monitor student performance.</p>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-white text-blue-500 rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/PTA.jpeg' %}" alt="Parent_Teachers">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Parent-Teacher Communication:</h3>
+            <p class="mt-2">Facilitate effective communication between parents and teachers. Send updates, announcements, and feedback instantly. Keep parents informed about their child's progress and school activities.</p>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="bg-white text-blue-500 rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/Homework.jpg' %}" alt="Homework">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Homework Assignments:</h3>
+            <p class="mt-2">Streamline homework management for teachers and students. Assign, submit, and review homework assignments online. Keep track of upcoming deadlines and completed tasks.</p>
+          </div>
+        </div>
+        <!-- Card 5 -->
+        <div class="bg-white text-blue-500 rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/Timetable.jpeg' %}" alt="Timetable">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Timetable Management:</h3>
+            <p class="mt-2">Create customized timetables for students and teachers. Organize classes, subjects, and extracurricular activities efficiently. Access timetables from any device for easy scheduling.</p>
+          </div>
+        </div>
+        <!-- Card 6 -->
+        <div class="bg-white text-blue-500 rounded-lg shadow-lg transform transition-transform card-enter hover:text-white hover:bg-blue-800 hover:scale-105 hover:translate-y-2">
+          <img class="h-40 w-full object-cover" src="{% static 'core/images/Resources_sharing.jpeg' %}" alt="Resources_sharing">
+          <div class="p-6">
+            <h3 class="mt-4 text-lg font-semibold">Resource Sharing:</h3>
+            <p class="mt-2">Build a centralized repository for educational resources. Share documents, presentations, and study materials with students and staff. Enhance collaboration and access learning materials anytime, anywhere.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% comment %} Why choose us section {% endcomment %}
+
+  <section id="Services" class="py-40 bg-gray-100">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-green-500">Why Choose EDUVERSE</h1>
+      </div>
+      <div class="text-center mb-12 text-blue-900">
+        <p class="mb-2">Efficiently manage all school operations in one place.</p>
+        <p class="mb-2">Our platform is user-friendly and accessible.</p>
+        <p class="mb-2">Streamline communication between staff, students, and parents.</p>
+        <p class="mb-2">24/7 support for all core.</p>
+        <p class="mb-2">Secure and scalable solutions for institutions of all sizes.</p>
+      </div>
+      <div class="flex flex-col lg:flex-row items-center lg:justify-between">
+        <!-- Left Column: Cards -->
+        <div class="w-full lg:w-2/5 lg:space-y-8">
+          <!-- Card 1 -->
+          <div class="bg-white p-6 rounded-lg shadow-lg card-hover transform transition-transform mb-6 lg:mb-0">
+            <div class="flex items-center">
+              <div class="mr-4">
+                <div class="text-4xl">💯</div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-green-500">Integrated Management Tools</h3>
+                <p class="text-blue-900">Seamlessly organize and oversee all school activities and operations.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="bg-white p-6 rounded-lg shadow-lg card-hover transform transition-transform mb-6 lg:mb-0">
+            <div class="flex items-center">
+              <div class="mr-4"><div class="text-5xl">👨‍🎓</div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-green-500">Enhanced Communication</h3>
+                <p class="text-blue-900">Foster effective communication among staff, students, and parents.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="bg-white p-6 rounded-lg shadow-lg card-hover transform transition-transform">
+            <div class="flex items-center">
+              <div class="mr-4">
+                <div class="text-5xl">⏱️</div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-green-500">24/7 Support</h3>
+                <p class="text-blue-900">We are here to assist you anytime.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column: Image -->
+        <div class="w-full lg:w-1/2 mt-8 lg:mt-0 lg:ml-8">
+          <img class="rounded-lg shadow-lg w-full" src="{% static 'core/images/whychoose.jpg' %}" alt="Why Choose Us">
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  {% comment %} Testimonial section {% endcomment %}
+
+  <section id="Testimonials"  class="py-40 bg-gray-100">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Title and Subtitle -->
+      <div class="text-center mb-8">
+        <h2 class="text-4xl font-extrabold text-blue-500">TESTIMONIALS</h2>
+        <hr class="w-24 mx-auto border-b-2 border-blue-500 mt-2">
+        <p class="text-lg mt-4">What our core have to say</p>
+      </div>
+
+      <!-- Testimonial Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
+        <!-- Card 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-lg relative mb-4">
+          <div class="absolute left-1/2 transform -translate-x-1/2 -top-10">
+            <img class="h-20 w-20 rounded-full border-4 border-white" src="{% static 'core/images/profile1.jpg' %}" alt="User 1">
+          </div>
+          <div class="mt-10 text-center">
+            <p class="mb-4 text-amber-800">"Eduverse has streamlined our school operations. The management tools are comprehensive and easy to use."</p>
+            <p class="text-blue-500 font-semibold">John Doe</p>
+            <p class="text-green-500">Student</p>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-lg relative mb-4">
+          <div class="absolute left-1/2 transform -translate-x-1/2 -top-10">
+            <img class="h-20 w-20 rounded-full border-4 border-white" src="{% static 'core/images/profile2.jpg' %}" alt="User 2">
+          </div>
+          <div class="mt-10 text-center">
+            <p class="mb-4 text-amber-800">"The support team at Eduverse is always ready to help. The platform has greatly improved communication between staff, students, and parents."</p>
+            <p class="text-blue-500 font-semibold">Jane Smith</p>
+            <p class="text-green-500">Teacher</p>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-white p-6 rounded-lg shadow-lg relative mb-4">
+          <div class="absolute left-1/2 transform -translate-x-1/2 -top-10">
+            <img class="h-20 w-20 rounded-full border-4 border-white" src="{% static 'core/images/profile3.jpeg' %}" alt="User 3">
+          </div>
+          <div class="mt-10 text-center">
+            <p class="mb-4 text-amber-800">"I love how Eduverse has enhanced our school's efficiency. The secure and scalable solutions fit perfectly with our needs."</p>
+            <p class="text-blue-500 font-semibold">Michael Brown</p>
+            <p class="text-green-500">School Owner</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% comment %} contact us {% endcomment %}
+
+  <section id="contact-us" class="py-40 bg-gray-100">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row">
+        <!-- Left Column: Contact Info -->
+        <div class="w-full lg:w-1/2 p-6 text-black flex flex-col items-center justify-center">
+          <div class="flex items-center justify-center">
+            <h2 class="text-3xl font-bold bg-blue-500 text-white p-2 rounded-l-md">Contact</h2>
+            <h2 class="text-3xl font-bold bg-white text-blue-500 p-2 rounded-r-md">Us</h2>
+          </div>
+          <div class="mt-6">
+            <div class="flex items-center mb-4">
+              <i class="fab fa-facebook-f text-blue-500 text-2xl mr-4"></i>
+              <span class="hidden sm:inline text-blue-500">Facebook</span>
+            </div>
+            <div class="flex items-center mb-4">
+              <i class="fab fa-twitter text-blue-500 text-2xl mr-4"></i>
+              <span class="hidden sm:inline text-blue-500">Twitter</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fab fa-instagram text-blue-500 text-2xl mr-4"></i>
+              <span class="hidden sm:inline text-blue-500">Instagram</span>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column: Contact Form -->
+        <div class="w-full lg:w-1/2 p-6">
+          <form class="border-2 border-blue-500 p-6 rounded-lg">
+            <fieldset>
+              <legend class="text-lg font-bold text-blue-500">Contact Form</legend>
+              <div class="mb-4">
+                <label for="name" class="block text-gray-700">Name</label>
+                <input type="text" id="name" name="name" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+              </div>
+              <div class="mb-4">
+                <label for="email" class="block text-gray-700">Email</label>
+                <input type="email" id="email" name="email" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+              </div>
+              <div class="mb-4">
+                <label for="message" class="block text-gray-700">Message</label>
+                <textarea id="message" name="message" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"></textarea>
+              </div>
+              <button type="submit" class="w-40 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Send Message</button>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
 
 {% endblock content %}

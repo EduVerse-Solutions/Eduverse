@@ -7,6 +7,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from core.validators import Validators
 
+from PIL import Image
+
 
 class User(AbstractUser):
     """
@@ -126,3 +128,55 @@ class Institution(models.Model):
         self.full_clean()
         Validators.run_validators(user=self.owner, institution=self)
         super().save(*args, **kwargs)
+
+
+class Profile(models.Model):
+    """
+    A model representing a user profile.
+
+    Attributes:
+        user (User): The user associated with the profile.
+        avatar (ImageField): The profile avatar image.
+        bio (TextField): The user's biography.
+    """
+
+    max_width = 500
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    avatar = models.ImageField(
+        default="default.png", upload_to="profile_images"
+    )
+    bio = models.TextField()
+
+    def __str__(self):
+        """
+        Returns a string representation of the profile.
+
+        Returns:
+            str: The username of the associated user.
+        """
+        return self.user.username
+
+    def save(self, *args, **kwargs):
+        """
+        Overrides the save method to resize the avatar image before saving.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        """
+        super().save(*args, **kwargs)
+
+        img = Image.open(self.avatar.path)
+
+        if max(img.size) > self.max_width:
+            width, height = img.size
+            if width > height:
+                ratio = self.max_width / width
+                new_size = (self.max_width, round(height * ratio))
+            else:
+                ratio = self.max_width / height
+                new_size = (round(width * ratio), self.max_width)
+            img = img.resize(new_size, Image.LANCZOS)
+
+        img.save(self.avatar.path)

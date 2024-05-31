@@ -41,3 +41,38 @@ a#forgot-password:hover {
 .alert-error .alert-link {
   color: #491217;
 }
+
+
+/* animation for hero section */
+
+@keyframes fade {
+  0% { opacity: 0; }
+  33% { opacity: 1; }
+  66% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fade {
+  animation: fade 12s infinite;
+}
+.fade:nth-child(1) { animation-delay: 16ss; }
+.fade:nth-child(2) { animation-delay: 12s; }
+.fade:nth-child(3) { animation-delay: 8s; }
+
+
+
+.card-enter {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.card-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.card-hover:hover {
+  @apply bg-green-600 text-white scale-x-105;
+}
+.card-hover {
+  @apply transition-all duration-300 ease-in-out;
+}

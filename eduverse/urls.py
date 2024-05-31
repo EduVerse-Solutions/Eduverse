@@ -9,6 +9,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from core import views as core_views
 
 urlpatterns = [
     path("", include("core.urls")),
@@ -23,6 +24,52 @@ urlpatterns = [
     path("api/auth/", include("rest_framework.urls")),
     re_path(r"^oauth/", include("social_django.urls", namespace="social")),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("__reload__/", include("django_browser_reload.urls")),
+    path(
+        "register/",
+        core_views.UserRegisterView.as_view(),
+        name="register",
+    ),
+    path(
+        "login/",
+        core_views.UserLoginView.as_view(
+            redirect_authenticated_user=True,
+            template_name="core/login.html",
+            authentication_form=core_views.UserLoginForm,
+        ),
+        name="login",
+    ),
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(),
+        name="logout",
+    ),
+    path(
+        "password_reset/",
+        core_views.ResetPasswordView.as_view(),
+        name="password_reset",
+    ),
+    path(
+        "password_reset/confirm/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="core/password_reset_confirm.html"
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "password_reset/complete/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="core/password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
+    path(
+        "password_change/",
+        core_views.ChangePasswordView.as_view(),
+        name="password_change",
+    ),
+
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
