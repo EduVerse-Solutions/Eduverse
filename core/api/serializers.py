@@ -15,6 +15,7 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            "id",
             "url",
             "created_at",
             "updated_at",
@@ -33,6 +34,7 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
 
         read_only_fields = [
             "url",
+            "id",
             "fullname",
             "role",
             "created_at",
@@ -50,3 +52,4 @@ class InstitutionSerializer(
     class Meta:
         model = Institution
         fields = "__all__"
+        read_only_fields = ["id"]

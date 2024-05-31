@@ -1,13 +1,17 @@
+from uuid import uuid4
+
 from django.db import models
 
 from core.models import User
 from core.validators import Validators
+from teachers.models import Class
 
 
 class Student(models.Model):
     """Student model."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid4)
     admission_number = models.CharField(max_length=20, unique=True)
     date_of_admission = models.DateField(null=False, blank=False)
     date_of_graduation = models.DateField(null=True, blank=True)
@@ -17,6 +21,12 @@ class Student(models.Model):
         related_name="guardian",
         null=True,
         blank=True,
+    )
+    class_id = models.ForeignKey(
+        Class,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
     )
 
     def __str__(self) -> str:
@@ -50,6 +60,7 @@ class Guardian(models.Model):
         related_name="guardian",
         null=False,
     )
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid4)
     wards = models.ManyToManyField("Student", related_name="guardians")
     profession = models.CharField(max_length=100, null=True, blank=True)
     relationship = models.CharField(max_length=100, null=True, blank=True)

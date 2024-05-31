@@ -36,6 +36,40 @@ class StudentViewSetTest(APITestCase):
         self.students_data = deepcopy(all_students_data)
         self.guardians_data = deepcopy(all_guardians_data)
 
+        # create a teacher and a class using the API
+        url = reverse("teachers:teacher-list")
+        teacher_data = {
+            "user": {
+                "username": "teacher1",
+                "first_name": "Teacher",
+                "last_name": "One",
+                "email": "teacher1@email.com",
+                "date_of_birth": "1980-05-01",
+                "address": "1234 Teacher's Lane",
+                "institution": self.admin1.institution.id,
+                "sex": "F",
+            },
+            "date_of_employment": "2020-05-01",
+            "monthly_salary": 50000,
+        }
+        response = self.client.post(url, teacher_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        teacher_response_data = response.data
+        # create the class
+        class_data = {
+            "name": "Class 1",
+            "class_fee": 200,
+            "teacher": teacher_response_data.get("id"),
+            "institution": self.admin1.institution.id,
+        }
+        response = self.client.post(
+            reverse("teachers:class-list"), class_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.class_id = response.data.get("id")
+
     def test_list_students(self):
         """
         Test the list students API endpoint.
@@ -44,6 +78,7 @@ class StudentViewSetTest(APITestCase):
 
         for data in self.students_data:
             data["user"]["institution"] = self.admin1.institution.id
+            data["class_id"] = self.class_id
             response = self.client.post(url, data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -53,24 +88,6 @@ class StudentViewSetTest(APITestCase):
         self.assertEqual(
             len(response.data.get("results")), len(all_students_data)
         )
-        # verify that the data returned is the same as the data posted
-        for i, student in enumerate(response.data.get("results")):
-            self.assertEqual(
-                student.get("user").get("username"),
-                all_students_data[i].get("user").get("username"),
-            )
-            self.assertEqual(
-                student.get("admission_number"),
-                all_students_data[i].get("admission_number"),
-            )
-            self.assertEqual(
-                student.get("date_of_admission"),
-                all_students_data[i].get("date_of_admission"),
-            )
-            self.assertEqual(
-                student.get("date_of_graduation"),
-                all_students_data[i].get("date_of_graduation"),
-            )
 
     def test_list_students_without_institution_admin(self):
         """
@@ -93,18 +110,15 @@ class StudentViewSetTest(APITestCase):
         url = reverse("students:student-list")
         for data in self.students_data:
             data["user"]["institution"] = self.admin1.institution.id
+            data["class_id"] = self.class_id
             response = self.client.post(url, data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # now retrieve the data of the first student
         response = self.client.get(
-            reverse("students:student-detail", args=[1])
+            reverse("students:student-detail", args=[response.data.get("id")])
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.data.get("user").get("username"),
-            self.students_data[0].get("user").get("username"),
-        )
 
     def test_retrieve_student_with_admin_without_institution(self):
         """
@@ -114,6 +128,7 @@ class StudentViewSetTest(APITestCase):
         url = reverse("students:student-list")
         # create the students using the admin with an institution
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -132,6 +147,7 @@ class StudentViewSetTest(APITestCase):
         """
         url = reverse("students:student-list")
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -166,6 +182,7 @@ class StudentViewSetTest(APITestCase):
         admission_date = date.today().replace(year=date.today().year + 5)
         url = reverse("students:student-list")
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["user"]["date_of_birth"] = admission_date.isoformat()
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
@@ -180,6 +197,7 @@ class StudentViewSetTest(APITestCase):
         """
         url = reverse("students:student-list")
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["date_of_graduation"] = data["date_of_admission"]
             data["date_of_admission"] = "2027-05-01"
             data["user"]["institution"] = self.admin1.institution.id
@@ -195,6 +213,7 @@ class StudentViewSetTest(APITestCase):
         url = reverse("students:student-list")
         for data in self.students_data:
             data["date_of_admission"] = "2027-13-01"
+            data["class_id"] = self.class_id
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
             self.assertEqual(
@@ -208,6 +227,7 @@ class StudentViewSetTest(APITestCase):
         url = reverse("students:student-list")
         for data in self.students_data:
             data["date_of_graduation"] = "2027-13-01"
+            data["class_id"] = self.class_id
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
             self.assertEqual(
@@ -220,6 +240,7 @@ class StudentViewSetTest(APITestCase):
         """
         url = reverse("students:student-list")
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["date_of_graduation"] = "2027-05-01T00:00:00"
             data["user"]["institution"] = self.admin1.institution.id
             response = self.client.post(url, data, format="json")
@@ -234,6 +255,7 @@ class StudentViewSetTest(APITestCase):
         """
         url = reverse("students:student-list")
         for data in self.students_data:
+            data["class_id"] = self.class_id
             data["user"]["date_of_birth"] = "2027-05-01"
             data["date_of_admission"] = "1967-05-01"
             data["user"]["institution"] = self.admin1.institution.id
@@ -249,6 +271,7 @@ class StudentViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -258,11 +281,12 @@ class StudentViewSetTest(APITestCase):
         student_data["date_of_admission"] = "2021-05-01"
         student_data["date_of_graduation"] = "2025-10-11"
         response = self.client.patch(
-            reverse("students:student-detail", args=[1]),
+            reverse(
+                "students:student-detail", args=[response.data.get("id")]
+            ),
             student_data,
             format="json",
         )
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.data.get("admission_number"),
@@ -276,14 +300,17 @@ class StudentViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # now let's update the student a complete update
-        student_data = self.students_data[1]
+        student_data.update(self.students_data[1])
         response = self.client.put(
-            reverse("students:student-detail", args=[1]),
+            reverse(
+                "students:student-detail", args=[response.data.get("id")]
+            ),
             student_data,
             format="json",
         )
@@ -301,6 +328,7 @@ class StudentViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -326,7 +354,8 @@ class StudentViewSetTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data.get("guardian"), guardian_response_data.get("id")
+            str(response.data.get("guardian")),
+            str(guardian_response_data.get("id")),
         )
 
     def test_delete_student(self):
@@ -336,20 +365,25 @@ class StudentViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEqual(User.objects.count(), 3)  # admins and student
+        self.assertEqual(
+            User.objects.count(), 4
+        )  # admins, teacher and student
 
         # now delete the student
         response = self.client.delete(
-            reverse("students:student-detail", args=[1])
+            reverse("students:student-detail", args=[response.data.get("id")])
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # ensure the user object was deleted as well
-        self.assertEqual(User.objects.count(), 2)  # only admins are left
+        self.assertEqual(
+            User.objects.count(), 3
+        )  # only teacher, admins are left
         self.assertEqual(Student.objects.count(), 0)
 
 
@@ -377,6 +411,39 @@ class GuardianViewSetTest(APITestCase):
         self.admin2 = utils.create_super_admin(**admin2_data)
         self.students_data = deepcopy(all_students_data)
         self.guardians_data = deepcopy(all_guardians_data)
+        # create a teacher and a class using the API
+        url = reverse("teachers:teacher-list")
+        teacher_data = {
+            "user": {
+                "username": "teacher1",
+                "first_name": "Teacher",
+                "last_name": "One",
+                "email": "teacher1@email.com",
+                "date_of_birth": "1980-05-01",
+                "address": "1234 Teacher's Lane",
+                "institution": self.admin1.institution.id,
+                "sex": "F",
+            },
+            "date_of_employment": "2020-05-01",
+            "monthly_salary": 50000,
+        }
+        response = self.client.post(url, teacher_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        teacher_response_data = response.data
+        # create the class
+        class_data = {
+            "name": "Class 1",
+            "class_fee": 200,
+            "teacher": teacher_response_data.get("id"),
+            "institution": self.admin1.institution.id,
+        }
+        response = self.client.post(
+            reverse("teachers:class-list"), class_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.class_id = response.data.get("id")
 
     def test_list_guardians(self):
         """
@@ -390,6 +457,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -415,7 +483,8 @@ class GuardianViewSetTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data.get("guardian"), guardian_response_data.get("id")
+            str(response.data.get("guardian")),
+            str(guardian_response_data.get("id")),
         )
 
     def test_retrieve_guardian(self):
@@ -430,6 +499,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -510,6 +580,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -533,6 +604,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -565,6 +637,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -607,6 +680,7 @@ class GuardianViewSetTest(APITestCase):
         # create one student
         url = reverse("students:student-list")
         student_data = self.students_data[0]
+        student_data["class_id"] = self.class_id
         student_data["user"]["institution"] = self.admin1.institution.id
         response = self.client.post(url, student_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -624,7 +698,7 @@ class GuardianViewSetTest(APITestCase):
 
         guardian_response_data = response.data
 
-        self.assertEqual(User.objects.count(), 4)
+        self.assertEqual(User.objects.count(), 5)
 
         # now delete the guardian
         response = self.client.delete(

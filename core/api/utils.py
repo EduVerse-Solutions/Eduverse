@@ -63,6 +63,9 @@ class EduverseAPIRoot(APIRootView):
         base_names = [
             "students:student-list",
             "students:guardian-list",
+            "teachers:teacher-list",
+            "teachers:class-list",
+            "teachers:subject-list",
         ]
         for basename in base_names:
             relative_url = reverse(basename)

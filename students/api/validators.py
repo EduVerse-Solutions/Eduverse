@@ -10,6 +10,7 @@ from rest_framework import serializers
 
 from core.models import Institution, User
 from students.models import Guardian, Student
+from teachers.models import Class, Teacher
 
 
 class BaseValidationMixin:
@@ -30,11 +31,39 @@ class BaseValidationMixin:
         if request is None:
             raise serializers.ValidationError(
                 {
-                    f"{self.model_name}": "Request is not available in the serializer context."
+                    f"{self.model_name}": "Request is not available in the "
+                    "serializer context."
                 }
             )
 
         request_user = request.user
+        if (
+            Teacher.objects.filter(
+                user__institution=request.user.institution
+            ).count()
+            == 0
+        ):
+            raise serializers.ValidationError(
+                {
+                    f"{self.model_name}": "You can't create "
+                    f"{self.model_name}s without a teacher. "
+                    "Create one first and try again."
+                }
+            )
+
+        if (
+            Class.objects.filter(
+                teacher__user__institution=request.user.institution
+            ).count()
+            == 0
+        ):
+            raise serializers.ValidationError(
+                {
+                    f"{self.model_name}": "You can't create "
+                    f"{self.model_name}s without a class. "
+                    "Create one first and try again."
+                }
+            )
 
         if data is None:
             raise serializers.ValidationError(
@@ -71,7 +100,6 @@ class BaseValidationMixin:
                     "institution."
                 )
 
-        data["user"] = user_data
         return data
 
 
@@ -101,6 +129,14 @@ class StudentValidationMixin(BaseValidationMixin):
 
         request = self.context.get("request")
 
+        if "class_id" not in data and request.method in [
+            "POST",
+            "PUT",
+        ]:
+            raise serializers.ValidationError(
+                {"class_id": "Class is required."}, code="required"
+            )
+
         student_data = data
         user_data = request.data.get("user")
 
@@ -111,9 +147,10 @@ class StudentValidationMixin(BaseValidationMixin):
             )
 
         # Convert the date of birth to a date object
-        user_data["date_of_birth"] = date.fromisoformat(
-            user_data["date_of_birth"]
-        )
+        if isinstance(user_data["date_of_birth"], str):
+            user_data["date_of_birth"] = date.fromisoformat(
+                user_data["date_of_birth"]
+            )
 
         # Create a User instance with the user data
         user = User(**user_data)
@@ -194,6 +231,7 @@ class StudentValidationMixin(BaseValidationMixin):
                         "student."
                     }
                 )
+
         return request.data
 
 
@@ -238,8 +276,7 @@ class GuardianValidationMixin(BaseValidationMixin):
         if any(
             ward
             for ward in wards
-            if ward.user.date_of_birth
-            < date.fromisoformat(guardian.date_of_birth)
+            if ward.user.date_of_birth < guardian.date_of_birth
         ):
             raise serializers.ValidationError(
                 {"guardian": "Wards can't be older than guardian"}

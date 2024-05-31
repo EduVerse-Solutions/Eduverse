@@ -145,14 +145,9 @@ class UserValidationMixin:
                     "invalid_institution",
                 )
 
-        if request_user.is_superuser:
-            chk_user = new_user
-        else:
-            chk_user = request_user
-
-        if chk_user.role == "Super Admin":
+        if request_user.role == "Super Admin":
             # ensure that Institution owners are at least 18 years old
-            if datetime.today().year - chk_user.date_of_birth.year < 18:
+            if datetime.today().year - request_user.date_of_birth.year < 18:
                 raise serializers.ValidationError(
                     {"user": "Institution owners must be at least 18 years."},
                     "age_restriction",
@@ -191,17 +186,16 @@ class InstitutionValidationMixin:
                     "already_has_institution",
                 )
 
-        if request.method in ["PUT"]:
-            if not (request_user.institution and request_user.is_superuser):
+        if request.method in ["PUT", "PATCH", "DELETE"]:
+            if not (request_user.institution or request_user.is_superuser):
                 raise serializers.ValidationError(
                     {
                         "institution": "You must belong to an institution to "
                         "perform this action.",
+                        "info": request_user.institution,
                     },
                     "does_not_have_institution",
                 )
-
-        if request.method in ["PUT", "PATCH", "DELETE"]:
             if request.method in ["PATCH"]:
                 # in case of a patch, let's ensure the institution already
                 # exists and then update its data with its existing one before
@@ -216,16 +210,19 @@ class InstitutionValidationMixin:
                     )
                 new_institution.__dict__.update(institution.__dict__)
 
-            if not (
-                request.user.is_superuser
-                or new_institution == request.user.institution
+            if (
+                not (
+                    request.user.is_superuser
+                    or request.user == request.user.institution.owner
+                )
+                and new_institution == request.user.institution
             ):
                 # no one should be able to modify the details of other
                 # institutions from another institution
                 raise serializers.ValidationError(
                     {
                         "institution": "You can't perform this action because "
-                        "you don't belong to this organization."
+                        "you don't belong to this organization.",
                     },
                     "invalid_operation",
                 )
