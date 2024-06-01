@@ -1,10 +1,6 @@
 """Views for the core app."""
 
 from django.contrib import messages
-from django.shortcuts import redirect, render
-
-from core.forms import InstitutionUpdateForm
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
@@ -13,15 +9,18 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
 from core.forms import (
+    InstitutionUpdateForm,
     UpdateProfileForm,
     UpdateUserForm,
     UserLoginForm,
     UserRegisterForm,
 )
+
 
 def home(request):
     return render(
@@ -55,6 +54,7 @@ def add_institution(request):
             "name": "Update Institution",
         },
     )
+
 
 class UserRegisterView(View):
     """
@@ -125,7 +125,7 @@ class UserRegisterView(View):
             registration page or redirecting to the login page.
 
         """
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request=request)
 
         if form.is_valid():
             form.save()
@@ -166,7 +166,6 @@ class UserLoginView(LoginView):
             HttpResponse: The HTTP response object.
 
         """
-        print(form.cleaned_data)
         remember_me = form.cleaned_data.get("remember_me")
 
         if not remember_me:
@@ -210,7 +209,7 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
         "please make sure you've entered the address you registered with, "
         "and check your spam folder."
     )
-    success_url = reverse_lazy("users:home")
+    success_url = reverse_lazy("core:home")
     extra_context = {"name": "Password Reset"}
 
 

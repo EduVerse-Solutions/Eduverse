@@ -86,7 +86,7 @@ class StudentViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            len(response.data.get("results")), len(all_students_data)
+            len(response.data.get("data")), len(all_students_data)
         )
 
     def test_list_students_without_institution_admin(self):
@@ -99,7 +99,7 @@ class StudentViewSetTest(APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data.get("results")), 0)
+        self.assertEqual(len(response.data.get("data")), 0)
 
     def test_retrieve_student(self):
         """
@@ -452,7 +452,7 @@ class GuardianViewSetTest(APITestCase):
         url = reverse("students:guardian-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data.get("results")), 0)
+        self.assertEqual(len(response.data.get("data")), 0)
 
         # create one student
         url = reverse("students:student-list")
@@ -494,7 +494,7 @@ class GuardianViewSetTest(APITestCase):
         url = reverse("students:guardian-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data.get("results")), 0)
+        self.assertEqual(len(response.data.get("data")), 0)
 
         # create one student
         url = reverse("students:student-list")

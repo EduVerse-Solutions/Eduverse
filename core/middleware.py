@@ -2,10 +2,10 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from social_core.exceptions import AuthCanceled
 
 from core.models import User
 
-from social_core.exceptions import AuthCanceled
 
 class AdminAccessMiddleware:
     """

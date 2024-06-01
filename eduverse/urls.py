@@ -9,6 +9,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+
 from core import views as core_views
 
 urlpatterns = [
@@ -25,7 +26,6 @@ urlpatterns = [
     path("api/auth/", include("rest_framework.urls")),
     re_path(r"^oauth/", include("social_django.urls", namespace="social")),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("__reload__/", include("django_browser_reload.urls")),
     path(
         "register/",
         core_views.UserRegisterView.as_view(),
@@ -69,11 +69,13 @@ urlpatterns = [
         core_views.ChangePasswordView.as_view(),
         name="password_change",
     ),
-
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-    urlpatterns.append(path("debug/", include("debug_toolbar.urls")))
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+        # path("__reload__/", include("django_browser_reload.urls")),
+    ]
+
 
 urlpatterns += staticfiles_urlpatterns()
