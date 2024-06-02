@@ -6,7 +6,7 @@ from core.api.utils import CustomDefaultRouter
 
 app_name = "core-api"
 
-router = CustomDefaultRouter()
+router = CustomDefaultRouter(trailing_slash=True)
 router.register(r"users", core_api_views.UserViewSet, basename="user")
 router.register(
     r"institutions", core_api_views.InstitutionViewSet, basename="institution"

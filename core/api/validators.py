@@ -11,7 +11,8 @@ unneeded_fields = [
     "count",
     "total_pages",
     "current_page",
-    "results",
+    "data",
+    "status_code",
 ]
 
 

@@ -1,3 +1,4 @@
+{% load static tailwind_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -19,21 +20,220 @@
         EduVerse
       {% endblock title %}
     </title>
+    {% tailwind_css %}
   </head>
-  <body>
-    {% if messages %}
-      {% for message in messages %}
-        <div class="mt-2 alert alert-dismissible alert-{{ message.tags }}"
-             role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-white shadow-md top-0 fixed w-full z-50">
+      <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+        <!-- Logo and Company Name -->
+        <div class="flex items-center">
+          <img src="{% static 'core/images/eduverse_logo_blue.jpeg' %}"
+               alt="Logo"
+               class="h-10 w-10 mr-2 rounded-full">
+          <span class="text-xl font-bold text-blue-900">EduVerse</span>
         </div>
-      {% endfor %}
-    {% endif %}
 
-    {% block content %}
-    {% endblock content %}
-  </body>
-</html>
+        <!-- Navigation Links (hidden on mobile) -->
+        <div class="hidden sm:flex space-x-6">
+          <a href="{% url 'core:home' %}#"
+             class="text-gray-700 hover:text-blue-500 px-6">Home</a>
+          <a href="{% url 'core:home' %}#Features"
+             class="text-gray-700 hover:text-blue-500 px-6">Features</a>
+          <a href="{% url 'core:home' %}#Services"
+             class="text-gray-700 hover:text-blue-500 px-6">Services</a>
+          <a href="{% url 'core:home' %}#Testimonials"
+             class="text-gray-700 hover:text-blue-500 px-6">Testimonials</a>
+          <a href="{% url 'core:home' %}#contact-us"
+             class="text-gray-700 hover:text-blue-500 px-6">Contact</a>
+        </div>
+
+        <!-- Sign In/Sign Up Buttons (hidden on mobile) -->
+        {% if user.is_authenticated %}
+          {% comment %} add what should show for authenticated users {% endcomment %}
+          {% comment %} Maybe give them a link back to their dashboard {% endcomment %}
+          {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}"
+               class="text-gray-700 hover:text-blue-500 px-6">Core Admininstation</a>
+          {% endif %}
+          <div class="hidden sm:flex space-x-1">
+            <a href="#" class="text-gray-700 hover:text-blue-500 px-6">Dashboard</a>
+            <form id="logout-form" method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+            </form>
+            <a href="#"
+               class="text-gray-700 hover:text-blue-500 px-6"
+               onclick="document.getElementById('logout-form').submit();">Logout</a>
+          {% else %}
+            <div class="hidden sm:flex space-x-4">
+              <a href="{% url 'register' %}"
+                 class="bg-blue-500 text-white px-4 py-2 rounded">Register</a>
+              <a href="{% url 'login' %}"
+                 class="bg-green-500 text-white px-4 py-2 rounded">Sign In</a>
+            </div>
+          {% endif %}
+
+          <!-- Hamburger Menu (visible on mobile) -->
+          <div class="sm:hidden flex items-center">
+            <button id="mobile-menu-button" class="focus:outline-none">
+              <svg class="w-6 h-6"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                </path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden sm:hidden">
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {% if user.is_authenticated %}
+              {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}"
+                   class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Core Admininstation</a>
+              {% endif %}
+            {% endif %}
+            <a href="{% url 'core:home' %}#"
+               class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Home</a>
+            <a href="{% url 'core:home' %}#Features"
+               class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Features</a>
+            <a href="{% url 'core:home' %}#Services"
+               class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Services</a>
+            <a href="{% url 'core:home' %}#Testimonials"
+               class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Testimonials</a>
+            <a href="{% url 'core:home' %}#contact-us"
+               class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Contact</a>
+            {% if user.is_authenticated %}
+              <div class="px-3 py-2 space-y-2">
+                <a href="#" class="block bg-blue-500 text-white px-2 py-2 rounded">Dashboard</a>
+                <form id="logout-form" method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                </form>
+                <a href="#"
+                   class="block px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                   onclick="document.getElementById('logout-form').submit();">Logout</a>
+              {% else %}
+                <div class="px-3 py-2 space-y-2">
+                  <a href="{% url 'register' %}"
+                     class="block w-full bg-blue-500 text-white px-4 py-2 rounded">Register</a>
+                  <a href="{% url 'login' %}"
+                     class="block w-full bg-green-500 text-white px-4 py-2 rounded">Sign In</a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </header>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="mt-7 {{ message.tags }} text-center px-4 py-3 relative top-4 rounded z-50">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}
+      {% endblock content %}
+
+      <!-- Footer -->
+
+      <footer class="bg-white shadow-lg mt-auto w-full">
+        <div class="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- First Section -->
+          <div>
+            <img src="{% static 'core/images/eduverse_logo_blue.jpeg' %}"
+                 alt="EduVerse Logo"
+                 class="h-12 w-12 mb-4 rounded-full">
+            <p class="text-gray-700 mb-4">
+              EduVerse is a leading provider of school management services.
+              We are dedicated to delivering top-tier services and products to our customers, ensuring excellence and satisfaction in every aspect.
+            </p>
+            <p class="text-gray-500 text-sm">&copy; 2024 EduVerse. All rights reserved.</p>
+          </div>
+
+          <!-- Second Section -->
+          <div>
+            <h2 class="text-xl text-blue-900 font-bold mb-4">EduVerse</h2>
+            <nav class="flex flex-col space-y-2">
+              <a href="{% url 'core:home' %}#"
+                 class="text-gray-700 hover:text-blue-500">Home</a>
+              <a href="{% url 'core:home' %}#Features"
+                 class="text-gray-700 hover:text-blue-500">Features</a>
+              <a href="{% url 'core:home' %}#Services"
+                 class="text-gray-700 hover:text-blue-500">Services</a>
+              <a href="{% url 'core:home' %}#Testimonials"
+                 class="text-gray-700 hover:text-blue-500">Testimonials</a>
+              <a href="{% url 'core:home' %}#contact-us"
+                 class="text-gray-700 hover:text-blue-500">Contact</a>
+            </nav>
+          </div>
+
+          <!-- Third Section -->
+          <div>
+            <h2 class="text-xl text-blue-900 font-bold mb-4">Terms</h2>
+            <nav class="flex flex-col space-y-2">
+              <a href="#" class="text-gray-700 hover:text-blue-500">Terms of Service</a>
+              <a href="#" class="text-gray-700 hover:text-blue-500">Privacy Policy</a>
+            </nav>
+          </div>
+
+          <!--Fourth Section -->
+
+          <div>
+            <h2 class="text-xl text-blue-900 font-bold mb-4">Designed and Developed by:</h2>
+            <div class="flex flex-col space-y-2">
+              <div>
+                <p class="text-gray-700">Maxwell Nana Forson</p>
+                <div class="flex space-x-2">
+                  <a href="https://github.com/nanafox"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-github"></i></a>
+                  <a href="https://linkedin.com/in/maxwellnanaforson"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-linkedin"></i></a>
+                  <a href="https://twitter.com/_nanafox"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-x-twitter"></i></a>
+                </div>
+              </div>
+              <div>
+                <p class="text-gray-700">Tonui Daisy</p>
+                <div class="flex space-x-2">
+                  <a href="https://github.com/tonuidaizy"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-github"></i></a>
+                  <a href="https://linkedin.com/in/tonuidaizy"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-linkedin"></i></a>
+                  <a href="https://twitter.com/tonuidaizy"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-x-twitter"></i></a>
+                </div>
+              </div>
+              <div>
+                <p class="text-gray-700">Agwu Emmauel</p>
+                <div class="flex space-x-2">
+                  <a href="https://github.com/emmaagwu/"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-github"></i></a>
+                  <a href="https://www.linkedin.com/in/emmaagwu/"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-linkedin"></i></a>
+                  <a href="https://x.com/nkumagwu"
+                     target="_blank"
+                     class="text-blue-900 hover:text-blue-500"><i class="fab fa-x-twitter"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </footer>
+      <!-- This script tag includes the main.js file from the 'core/js' directory in the static files. -->
+      <script src="{% static 'core/js/main.js' %}"></script>
+    </body>
+  </html>

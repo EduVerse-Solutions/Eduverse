@@ -1,6 +1,8 @@
+node_modules
 /media/profile_images/
 /static/
 !.trunk/
+node_modules/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

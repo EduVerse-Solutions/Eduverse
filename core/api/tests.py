@@ -210,11 +210,11 @@ class InstitutionViewSetTest(APITestCase):
         Test the list institutions API endpoint.
         """
         response = self.client.get(reverse("core-api:institution-list"))
-        results = response.data.get("results")
+        data = response.data.get("data")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(results), 1)
-        institution = results[0]
+        self.assertEqual(len(data), 1)
+        institution = data[0]
         self.assertEqual(institution.get("name"), "Test Institution")
         self.assertEqual(institution.get("owner"), self.institution.owner_id)
 
