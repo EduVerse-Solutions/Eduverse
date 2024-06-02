@@ -23,6 +23,29 @@ from core.forms import (
 
 
 def home(request):
+    user = request.user
+    if user.is_authenticated:
+        if user.role in ["Super Admin", "Admin"]:
+            return render(
+                request,
+                "core/admin_dashboard.html",
+                context={"name": "Admin Dashboard"},
+            )
+
+        elif user.role == "Student":
+            return render(
+                request,
+                "core/student_dashboard.html",
+                context={"name": "Student Dashboard"},
+            )
+
+        elif user.role == "Teacher":
+            return render(
+                request,
+                "core/teacher_dashboard.html",
+                context={"name": "Teacher Dashboard"},
+            )
+
     return render(
         request, template_name="core/home.html", context={"name": "Home"}
     )

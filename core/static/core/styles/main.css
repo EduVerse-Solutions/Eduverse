@@ -173,3 +173,11 @@ a#forgot-password:hover {
 .mt-7 {
   margin-top: 7rem !important;
 }
+
+.sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-closed {
+  transform: translateX(-100%);
+}

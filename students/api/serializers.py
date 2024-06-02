@@ -15,10 +15,11 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
     Serializer for the BaseUserModel class.
     """
 
-    user = UserSerializer(required=False)
+    user = UserSerializer()
 
     class Meta:
         fields = "__all__"
+        read_only_fields = ["id"]
 
     def create(self, validated_data):
         """

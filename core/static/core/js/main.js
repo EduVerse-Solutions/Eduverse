@@ -64,22 +64,22 @@ document.addEventListener("DOMContentLoaded", function () {
 // script for the dashboard_base html
 
 // Toggle Sidebar
-const hamburger = document.getElementById('hamburger');
-const sidebar = document.getElementById('sidebar');
-hamburger.addEventListener('click', () => {
-    sidebar.classList.toggle('sidebar-closed');
+const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
+hamburger.addEventListener("click", () => {
+  sidebar.classList.toggle("sidebar-closed");
 });
 
 // Toggle User Menu
-const userMenuButton = document.getElementById('user-menu-button');
-const userMenu = document.getElementById('user-menu');
-userMenuButton.addEventListener('click', () => {
-    userMenu.classList.toggle('hidden');
+const userMenuButton = document.getElementById("user-menu-button");
+const userMenu = document.getElementById("user-menu");
+userMenuButton.addEventListener("click", () => {
+  userMenu.classList.toggle("hidden");
 });
 
 // Close User Menu on Click Outside
-window.addEventListener('click', (e) => {
-    if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
-        userMenu.classList.add('hidden');
-    }
+window.addEventListener("click", (e) => {
+  if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+    userMenu.classList.add("hidden");
+  }
 });
