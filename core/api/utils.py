@@ -43,10 +43,11 @@ class PaginationWithLinks(PageNumberPagination):
                     "next": self.get_next_link(),
                     "previous": self.get_previous_link(),
                 },
+                "status_code": Response.status_code,
                 "count": self.page.paginator.count,
                 "total_pages": self.page.paginator.num_pages,
                 "current_page": self.page.number,
-                "results": data,
+                "data": data,
             }
         )
 

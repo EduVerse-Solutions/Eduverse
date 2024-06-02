@@ -2,7 +2,9 @@
 
 import os
 from pathlib import Path
+from shutil import which
 
+from django.contrib import messages
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -42,8 +44,14 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "django_filters",
+    "tailwind",
+    "theme",
+    "django_browser_reload",
 ]
 
+
+TAILWIND_APP_NAME = "theme"
+NPM_BIN_PATH = which("npm")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -63,7 +71,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 if DEBUG:
     INSTALLED_APPS.append("debug_toolbar")
-    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        # "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
     INTERNAL_IPS = [
         "127.0.0.1",
     ]
@@ -225,3 +236,11 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 PASSWORD_RESET_TIMEOUT = 3600
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "alert alert-debug alert-dismissible",
+    messages.INFO: "alert alert-info alert-dismissible",
+    messages.SUCCESS: "alert alert-success alert-dismissible",
+    messages.WARNING: "alert alert-warning alert-dismissible",
+    messages.ERROR: "alert alert-error alert-dismissible",
+}

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from social_core.exceptions import AuthCanceled
 
 from core.models import User
 
@@ -69,3 +70,60 @@ class InstitutionCheckMiddleware(MiddlewareMixin):
                     message="You have not created an organization yet. Please "
                     "do that in the institution section",
                 )
+
+
+class SocialAuthExceptionMiddleware:
+    """
+    Middleware class to handle social authentication exceptions.
+
+    This middleware class is responsible for catching exceptions related to
+    social authentication and redirecting the user to the appropriate page
+    based on the exception type.
+
+    Attributes:
+        get_response (function): The callable that represents the next
+        middleware or view in the chain.
+
+    Methods:
+        __call__(self, request): Process the request and return the response.
+        process_exception(self, request, exception): Handle the exception and
+        return the appropriate response.
+    """
+
+    def __init__(self, get_response):
+        """
+        Initializes a new instance of the Middleware class.
+
+        Args:
+            get_response (function): The function to be called to get the
+            response.
+        """
+        self.get_response = get_response
+
+    def __call__(self, request):
+        """
+        Process the request and return the response.
+
+        Args:
+            request (HttpRequest): The incoming request object.
+
+        Returns:
+            HttpResponse: The response object.
+        """
+        response = self.get_response(request)
+        return response
+
+    def process_exception(self, request, exception):
+        """
+        Handle the exception and return the appropriate response.
+
+        Args:
+            request (HttpRequest): The incoming request object.
+            exception (Exception): The exception object.
+
+        Returns:
+            HttpResponseRedirect: The response object for redirecting the user.
+
+        """
+        if isinstance(exception, AuthCanceled):
+            return HttpResponseRedirect(reverse("auth_canceled"))
