@@ -35,6 +35,25 @@ jobs:
             git switch dev # we are deploying the content in the dev
             git pull origin dev
 
+            # install node
+            # installs nvm (Node Version Manager)
+            curl -o-
+            https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh |
+            bash
+
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+            # download and install Node.js
+            nvm install 20
+
+            # verifies the right Node.js version is in the environment
+            node -v
+
+            # verifies the right NPM version is in the environment
+            npm -v
+
             # setup the environment for Django
             source .venv/bin/activate
             pip install --upgrade pip
@@ -44,12 +63,18 @@ jobs:
               # undo all migrations and reapply them
               ./undo_migrations.sh --redo
 
+              # build tailwind CSS
+              ./manage.py tailwind install
+              ./manage.py tailwind build
+
               # get the static files
               ./manage.py collectstatic --noinput
 
               # get the service running again
               sudo systemctl stop eduverse.service
               sudo systemctl start eduverse.service
+
+              echo "Deployment to Development Server was successful."
               exit 0
             else
               echo "There's nothing to deploy yet."
