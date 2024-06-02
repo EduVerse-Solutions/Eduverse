@@ -22,15 +22,15 @@
     </title>
     {% tailwind_css %}
   </head>
-  <body>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
     <!-- Header Section -->
     <header class="bg-white shadow-md top-0 fixed w-full z-50">
-      <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="container mx-auto px-4 py-2 flex items-center justify-between">
         <!-- Logo and Company Name -->
         <div class="flex items-center">
           <img src="{% static 'core/images/eduverse_logo_blue.jpeg' %}"
                alt="Logo"
-               class="h-20 w-20 mr-2 rounded-full">
+               class="h-10 w-10 mr-2 rounded-full">
           <span class="text-xl font-bold text-blue-900">EduVerse</span>
         </div>
 
@@ -130,26 +130,18 @@
       </header>
       {% if messages %}
         {% for message in messages %}
-          <div class="mt-8 {{ message.tags }} px-4 py-3 rounded relative">
+          <div class="mt-7 {{ message.tags }} text-center px-4 py-3 relative top-4 rounded z-50">
             {{ message }}
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-              <svg class="fill-current h-6 w-6 text-white"
-                   role="button"
-                   xmlns="http://www.w3.org/2000/svg"
-                   viewBox="0 0 20 20">
-                <title>Close</title>
-                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-              </svg>
-            </span>
           </div>
         {% endfor %}
       {% endif %}
+
       {% block content %}
       {% endblock content %}
 
       <!-- Footer -->
 
-      <footer class="bg-white shadow-lg mt-auto bottom-0 w-full">
+      <footer class="bg-white shadow-lg mt-auto w-full">
         <div class="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
           <!-- First Section -->
           <div>
