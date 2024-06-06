@@ -2,84 +2,205 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-      {% block title %}
+        {% block title %}
         {% if name %}{{ name }} |{% endif %}
         EduVerse
-      {% endblock title %}
+        {% endblock title %}
     </title>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="{% static "core/styles/main.css" %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'core/styles/main.css' %}">
     {% tailwind_css %}
-  </head>
-  <body class="bg-gray-100">
+    <style>
+        .sidebar-closed {
+            transform: translateX(-100%);
+        }
+        .sidebar-open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
     <!-- Navigation Bar -->
     <header class="bg-blue-600 text-white shadow-md">
-      <div class="container mx-auto flex justify-between items-center p-4">
-        <div class="flex items-center">
-          <span class="text-lg font-bold mx-2">School Management</span>
-          <button id="hamburger" class="ml-4 lg:hidden">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
-        </div>
-        <div class="flex items-center">
-          <button class="mx-2">
-            <i class="fas fa-envelope text-xl"></i>
-          </button>
-          <button class="mx-2">
-            <i class="fas fa-bell text-xl"></i>
-          </button>
-          <div class="relative">
-            <img src="https://via.placeholder.com/40"
-                 alt="User Profile"
-                 class="rounded-full w-10 h-10 mx-2">
-            <span class="mx-2 hidden lg:inline">User Name</span>
-            <button id="user-menu-button" class="relative">
-              <i class="fas fa-caret-down text-xl"></i>
-            </button>
-            <div id="user-menu"
-                 class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg hidden">
-              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Account Settings</a>
-              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Profile</a>
-              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Logout</a>
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <div class="flex items-center">
+                <button id="hamburger" class="mr-4">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <span class="text-lg font-bold mx-2">School Management</span>
             </div>
-          </div>
+            <div class="hidden lg:flex items-center space-x-4">
+                <button class="mx-2">
+                    <i class="fas fa-envelope text-xl"></i>
+                </button>
+                <button class="mx-2">
+                    <i class="fas fa-bell text-xl"></i>
+                </button>
+                <div class="flex items-center relative">
+                    <img src="https://via.placeholder.com/40" alt="User Profile" class="rounded-full w-10 h-10 mx-2">
+                    <span class="mx-2">User Name</span>
+                    <button id="user-menu-button" class="relative">
+                        <i class="fas fa-caret-down text-xl"></i>
+                    </button>
+                    <div id="user-menu" class="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-lg hidden">
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Account Settings</a>
+                        <form id="profile_form" method="get" action="{{ user.profile }}">
+                            {% csrf_token %}
+                        </form>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200" id="profile-link">Profile</a>
+                        <form id="logout-form" method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                        </form>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200" onclick="document.getElementById('logout-form').submit();">Logout</a>
+                    </div>
+                </div>
+            </div>
+            <button id="ellipsis" class="lg:hidden">
+                <i class="fas fa-ellipsis-h text-xl"></i>
+            </button>
         </div>
-      </div>
     </header>
 
-    <div class="flex">
-      <!-- Sidebar -->
-      <aside id="sidebar"
-             class="sidebar bg-yellow-300 w-64 min-h-screen p-4 shadow-md lg:transform-none lg:relative lg:w-64">
-        {% block sidebar %}
-          <!-- Sidebar content will be injected here -->
-        {% endblock sidebar %}
-      </aside>
-      <h3>{{ user.username }}</h3>
-      <!-- Main Content -->
-      <main class="flex-1 p-6 bg-gray-100">
-        {% block content %}
-          <!-- Main content will be injected here -->
-        {% endblock content %}
-      </main>
+    <!-- Second Navigation Bar (Mobile Only) -->
+    <div id="second-navbar" class="bg-blue-600 text-white shadow-md hidden lg:hidden">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <button class="mx-2">
+                <i class="fas fa-envelope text-xl"></i>
+            </button>
+            <button class="mx-2">
+                <i class="fas fa-bell text-xl"></i>
+            </button>
+            <div class="flex items-center relative">
+                <img src="https://via.placeholder.com/40" alt="User Profile" class="rounded-full w-10 h-10 mx-2">
+                <span class="mx-2">User Name</span>
+                <button id="second-user-menu-button" class="relative">
+                    <i class="fas fa-caret-down text-xl"></i>
+                </button>
+                <div id="second-user-menu" class="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-lg hidden">
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Account Settings</a>
+                    <form id="second-profile_form" method="get" action="{{ user.profile }}">
+                        {% csrf_token %}
+                    </form>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200" id="second-profile-link">Profile</a>
+                    <form id="second-logout-form" method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                    </form>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200" onclick="document.getElementById('second-logout-form').submit();">Logout</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="{% static 'core/js/main.js' %}"></script>
-    <script>
-      const url = "{% url 'students:student-list' %}";
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-gray-400 p-4 shadow-md fixed inset-y-0 left-0 transform lg:relative transition-transform duration-300 ease-in-out lg:translate-x-0 lg:w-64 w-64 min-h-screen border-r-2 border-gray-300 sidebar-open">
+            {% block sidebar %}
+            <!-- Sidebar content will be injected here -->
+            {% endblock sidebar %}
+        </aside>
 
-      // fecth the students in this institution
-      fetch(url)
-        .then(response => response.json())
-        .then(data => console.log(data));
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 p-6 bg-white-400 transition-all duration-300 ease-in-out">
+            {% block content %}
+            <!-- Main content will be injected here -->
+            {% endblock content %}
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle Sidebar
+            const hamburger = document.getElementById("hamburger");
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+
+            hamburger.addEventListener("click", () => {
+                sidebar.classList.toggle("sidebar-closed");
+                sidebar.classList.toggle("sidebar-open");
+                mainContent.classList.toggle("ml-0");
+                if (!sidebar.classList.contains('sidebar-open')) {
+                  mainContent.style.width = "calc(100vw - 16rem)";
+                } else {
+                  mainContent.style.width = "100%";
+                }
+            });
+
+            // Toggle User Menu (Large Screen)
+            const userMenuButton = document.getElementById("user-menu-button");
+            const userMenu = document.getElementById("user-menu");
+
+            userMenuButton.addEventListener("click", () => {
+                userMenu.classList.toggle("hidden");
+            });
+
+            // Toggle User Menu (Second Navigation Bar on Mobile)
+            const secondUserMenuButton = document.getElementById("second-user-menu-button");
+            const secondUserMenu = document.getElementById("second-user-menu");
+
+            secondUserMenuButton.addEventListener("click", () => {
+                secondUserMenu.classList.toggle("hidden");
+            });
+
+            // Close User Menus on Click Outside
+            window.addEventListener("click", (e) => {
+                if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add("hidden");
+                }
+                if (!secondUserMenuButton.contains(e.target) && !secondUserMenu.contains(e.target)) {
+                    secondUserMenu.classList.add("hidden");
+                }
+            });
+
+            // Toggle Student Links
+            const studentLink = document.getElementById('student-link');
+            const studentLinks = document.getElementById('student-links');
+
+            if (studentLink && studentLinks) {
+                studentLink.addEventListener('click', () => {
+                    studentLinks.classList.toggle('hidden');
+                });
+            }
+
+            // Fetch and display profile content
+            const profileLink = document.getElementById('profile-link');
+            if (profileLink) {
+                profileLink.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent default anchor behavior
+                    loadProfileContent();
+                });
+            }
+
+            function loadProfileContent() {
+                fetch('/profile/') // Replace with your actual URL
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        const mainContent = document.getElementById('main-content');
+                        if (mainContent) {
+                            mainContent.innerHTML = html;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching profile content:', error));
+            }
+
+            // Toggle Second Navigation Bar
+            const ellipsis = document.getElementById("ellipsis");
+            const secondNavbar = document.getElementById("second-navbar");
+
+            ellipsis.addEventListener("click", () => {
+                secondNavbar.classList.toggle("hidden");
+            });
+        });
     </script>
-  </body>
+</body>
 </html>
