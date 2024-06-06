@@ -1,0 +1,175 @@
+{% load static %}
+{% extends "core/dashboards/dashboard_base.html" %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static "teachers/css/main.css" %}">
+{% endblock extra_css %}
+
+{% block sidebar %}
+
+{% endblock sidebar %}
+<!-- Sidebar -->
+<nav id="sidebar"
+     class="sidebar bg-blue-800 text-white h-full w-64 relative">
+  <div class="p-4">
+    <h2 class="text-xl font-bold">Teacher Menu</h2>
+    <ul class="mt-4">
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-table-columns mr-2"></i>Dashboard</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-gear mr-2"></i>General Settings</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
+          <i class=""></i> Classes</a>
+        <div class="subnav">
+          <button class="subnavbtn">
+            Classes <i class="fa-solid fa-chalkboard-user mr-2"></i>
+          </button>
+          <div class="subnav-content">
+            <a href="#allclasses">All Classes</a>
+            <a href="#newclasses">New Classes</a>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </li>
+  <li class="py-2 px-4 hover:bg-blue-800:">
+    <a href="#"> <i class="fa-solid fa-book-open mr-2"></i>Subjects</a>
+  </li>
+  <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+    <a href="#" onclick="toggleSubmenu(event, 'studentsSubmenu')">
+      <i class="fa-solid fa-school mr-2"></i>Students</a>
+    <ul id="studentsSubmenu" class="submenu pl-4">
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">All Students</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'feesSubmenu')">
+          <i class="fa-solid fa-coins mr-2"></i> Fees</a>
+        <ul id="feesSubmenu" class="submenu pl-4">
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'salarySubmenu')">
+          <i class="fa-solid fa-wallet mr-2"></i>Salary Renumeration</a>
+        <ul id="salarySubmenu" class="submenu pl-4">
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Salary Breakdown</a>
+          </li>
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-calendar-days mr-2"></i>Timetable</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-envelope-open-text mr-2"></i>Exams</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+{% block content %}
+
+{% endblock content %}
+
+</head>
+<body class="bg-gray-100 flex">
+  <div class="flex-1">
+    <!-- Header -->
+    <header class="flex items-center justify-between p-4 bg-blue-800 text-white">
+      <div class="flex items-center">
+        <button class="mr-4 text-white focus:outline-none" onclick="toggleSidebar()">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <img src="path/to/logo.png" alt="Logo" class="h-12 mr-4" />
+        <form class="relative">
+          <input type="text"
+                 placeholder="Search"
+                 class="pl-8 pr-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:bg-gray-600" />
+          <svg class="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-400 h-5 w-5"
+               fill="currentColor"
+               xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 20 20">
+            <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l4.88 4.88-1.42 1.42-4.87-4.88zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
+          </svg>
+        </form>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a href="playstore-link"
+           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Download on Playstore</a>
+        <div class="relative dropdown">
+          <button class="flex items-center focus:outline-none">
+            <img src="path/to/teacher-image.png"
+                 alt="Admin"
+                 class="h-10 w-10 rounded-full mr-2" />
+          </button>
+          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-20 hidden">
+            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Account Settings</a>
+            <div class="border-t border-gray-200"></div>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Log Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="p-4">
+      <h1 class="text-2xl font-bold">Welcome to the Teacher Dashboard</h1>
+      <!-- Calendar for Events -->
+      <div class="card mt-4">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+
+    function toggleSubmenu(event, submenuId) {
+      event.preventDefault();
+      document.getElementById(submenuId).classList.toggle("submenu-open");
+    }
+
+    // FullCalendar
+    document.addEventListener("DOMContentLoaded", function() {
+      var calendarEl = document.getElementById("calendar");
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        headerToolbar: {
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth,timeGridWeek,timeGridDay",
+        },
+        events: [
+          // Add your events here
+          {
+            title: "Event 1",
+            start: "2024-06-01",
+            end: "2024-06-02",
+          }, {
+            title: "Event 2",
+            start: "2024-06-05",
+            end: "2024-06-07",
+          },
+        ],
+      });
+      calendar.render();
+    });
+  </script>
+</body>
+</html>

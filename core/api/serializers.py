@@ -4,7 +4,7 @@ from core.api.validators import (
     InstitutionValidationMixin,
     UserValidationMixin,
 )
-from core.models import Institution, User
+from core.models import Institution, User, UserProfile
 
 
 class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
@@ -53,3 +53,26 @@ class InstitutionSerializer(
         model = Institution
         fields = "__all__"
         read_only_fields = ["id"]
+
+
+class UserSerializerWithoutInstitution(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        read_only_fields = UserSerializer.Meta.read_only_fields + [
+            "institution"
+        ]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializerWithoutInstitution()
+
+    class Meta:
+        model = UserProfile
+        fields = ["user", "bio", "avatar"]
+
+
+class InstitutionProfileSerializer(serializers.ModelSerializer):
+    institution = InstitutionSerializer()
+
+    class Meta:
+        model = Institution
+        fields = ["institution", "bio", "logo"]

@@ -132,7 +132,39 @@ class Institution(models.Model):
         super().save(*args, **kwargs)
 
 
-class Profile(models.Model):
+class BaseProfile(models.Model):
+    picture_max_width = 500
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid4)
+
+    def save(self, *args, **kwargs):
+        """
+        Overrides the save method to resize the logo image before saving.
+        """
+        super().save(*args, **kwargs)
+
+        if hasattr(self, "avatar"):
+            image_field = self.avatar
+        elif hasattr(self, "logo"):
+            image_field = self.logo
+        else:
+            return
+
+        img = Image.open(image_field.path)
+
+        if max(img.size) > self.picture_max_width:
+            width, height = img.size
+            if width > height:
+                ratio = self.picture_max_width / width
+                new_size = (self.picture_max_width, round(height * ratio))
+            else:
+                ratio = self.picture_max_width / height
+                new_size = (round(width * ratio), self.picture_max_width)
+            img = img.resize(new_size, Image.LANCZOS)
+
+        img.save(image_field.path)
+
+
+class UserProfile(BaseProfile):
     """
     A model representing a user profile.
 
@@ -142,13 +174,14 @@ class Profile(models.Model):
         bio (TextField): The user's biography.
     """
 
-    max_width = 500
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile"
+    )
 
     avatar = models.ImageField(
         default="default.png", upload_to="profile_images"
     )
-    bio = models.TextField()
+    bio = models.TextField(null=True, blank=True)
 
     def __str__(self):
         """
@@ -157,28 +190,33 @@ class Profile(models.Model):
         Returns:
             str: The username of the associated user.
         """
-        return self.user.username
+        return f"{self.user.username} - Profile"
 
-    def save(self, *args, **kwargs):
+
+class InstitutionProfile(BaseProfile):
+    """
+    A model representing an institution profile.
+
+    Attributes:
+        institution (Institution): The institution associated with the profile.
+        logo (ImageField): The institution logo image.
+        description (TextField): The institution description.
+    """
+
+    institution = models.OneToOneField(
+        Institution, on_delete=models.CASCADE, related_name="profile"
+    )
+
+    logo = models.ImageField(
+        default="default.png", upload_to="institution_images"
+    )
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
         """
-        Overrides the save method to resize the avatar image before saving.
+        Returns a string representation of the profile.
 
-        Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
+        Returns:
+            str: The name of the associated institution.
         """
-        super().save(*args, **kwargs)
-
-        img = Image.open(self.avatar.path)
-
-        if max(img.size) > self.max_width:
-            width, height = img.size
-            if width > height:
-                ratio = self.max_width / width
-                new_size = (self.max_width, round(height * ratio))
-            else:
-                ratio = self.max_width / height
-                new_size = (round(width * ratio), self.max_width)
-            img = img.resize(new_size, Image.LANCZOS)
-
-        img.save(self.avatar.path)
+        return f"{self.institution.name} - Profile"

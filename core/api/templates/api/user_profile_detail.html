@@ -1,0 +1,14 @@
+{% extends base_dashboard_template %}
+
+{% load rest_framework %}
+{% block extra_css %}
+{% endblock extra_css %}
+<h1>Profile - {{ profile.user.username }}</h1>
+
+{% block content %}
+  <form id="profileForm" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% render_form serializer %}
+    <input type="submit" value="Save" class="btn btn-lg btn-red">
+  </form>
+{% endblock content %}

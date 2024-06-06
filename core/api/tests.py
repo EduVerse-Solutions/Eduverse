@@ -146,7 +146,7 @@ class UserViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.admin1.role = "Super Admin"
 
-    def test_update_user(self):
+    def test_partial_update_user(self):
         """
         Test the update user API endpoint.
         """

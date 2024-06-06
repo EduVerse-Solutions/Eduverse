@@ -79,6 +79,10 @@ class EduverseAPIRoot(APIRootView):
 class CustomDefaultRouter(DefaultRouter):
     APIRootView = EduverseAPIRoot
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.trailing_slash = "/?"
+
 
 def create_super_admin(assign_institution=False, **kwargs):
     """

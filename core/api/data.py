@@ -45,7 +45,7 @@ user_list = [
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
         "email": "user2@example.com",
-        "date_of_birth": fake.date_of_birth(minimum_age=5, maximum_age=50),
+        "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=50),
         "address": fake.address(),
         "sex": random.choice(["M", "F"]),  # nosec
         "role": "Student",

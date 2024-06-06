@@ -1,0 +1,228 @@
+{% extends "core/dashboards/dashboard_base.html" %}
+
+{% block sidebar %}
+  <nav id="sidebar"
+       class="sidebar bg-blue-800 text-white h-full w-64 relative">
+    <div class="p-4">
+      <h2 class="text-xl font-bold">Admin Menu</h2>
+      <ul class="mt-4">
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-table-columns mr-2"></i>Dashboard</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#"> <i class="fa-solid fa-user mr-2"></i>Users</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-gear mr-2"></i>General Settings</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
+            <i class=""></i> Classes</a>
+          <div class="subnav">
+            <button class="subnavbtn">
+              Classes <i class="fa-solid fa-chalkboard-user mr-2"></i>
+            </button>
+            <div class="subnav-content">
+              <a href="#allclasses">All Classes</a>
+              <a href="#newclasses">New Classes</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <li class="py-2 px-4 hover:bg-blue-800:">
+        <a href="#"> <i class="fa-solid fa-book-open mr-2"></i>Subjects</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'studentsSubmenu')">
+          <i class="fa-solid fa-school mr-2"></i>Students</a>
+        <ul id="studentsSubmenu" class="submenu pl-4">
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">All Students</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Add New Student</a>
+          </li>
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'employeesSubmenu')">
+          <i class="fa-solid fa-person-chalkboard mr-2"></i>Employees</a>
+        <ul id="employeesSubmenu" class="submenu pl-4">
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">All Employees</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Add New Employee</a>
+          </li>
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'feesSubmenu')">
+          <i class="fa-solid fa-coins mr-2"></i> Fees</a>
+        <ul id="feesSubmenu" class="submenu pl-4">
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Fee Defaulters</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Fee Slip</a>
+          </li>
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+        <a href="#" onclick="toggleSubmenu(event, 'salarySubmenu')">
+          <i class="fa-solid fa-wallet mr-2"></i>Salary</a>
+        <ul id="salarySubmenu" class="submenu pl-4">
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Salary Sheet</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-blue-800">
+            <a href="#">Salary Report</a>
+          </li>
+        </ul>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-calendar-days mr-2"></i>Timetable</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-envelope-open-text mr-2"></i>Exams</a>
+      </li>
+      <li class="py-2 px-4 hover:bg-blue-800">
+        <a href="#">
+          <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+{% endblock sidebar %}
+
+<div class="flex-1">
+  {% block content %}
+    <!-- Main Content -->
+    <div class="p-4">
+      <h1 class="text-2xl font-bold">Welcome to the Admin Dashboard</h1>
+      <!-- Your main content goes here -->
+      <!-- Statistics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div class="stat-card">
+          <div>Total Students This Month</div>
+          <div class="text-xl font-bold">0</div>
+        </div>
+        <div class="stat-card">
+          <div>Total Employees This Month</div>
+          <div class="text-xl font-bold">0</div>
+        </div>
+        <div class="stat-card">
+          <div>Revenue Generated This Month</div>
+          <div class="text-xl font-bold">$0</div>
+        </div>
+        <div class="stat-card">
+          <div>Total Profit This Month</div>
+          <div class="text-xl font-bold">$0</div>
+        </div>
+      </div>
+
+      <!-- Statistical Chart -->
+      <div class="card">
+        <canvas id="myChart"></canvas>
+      </div>
+
+      <!-- Daily Information -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+        <div class="card">
+          <div class="text-lg font-semibold">Absent Students Today</div>
+          <div class="text-xl font-bold">0</div>
+        </div>
+        <div class="card">
+          <div class="text-lg font-semibold">Present Employees Today</div>
+          <div class="text-xl font-bold">0</div>
+        </div>
+        <div class="card">
+          <div class="text-lg font-semibold">New Admissions Today</div>
+          <div class="text-xl font-bold">0</div>
+        </div>
+      </div>
+
+      <!-- Calendar for Events -->
+      <div class="card mt-4">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+
+    function toggleSubmenu(event, submenuId) {
+      event.preventDefault();
+      document.getElementById(submenuId).classList.toggle("submenu-open");
+    }
+
+    // Chart Data
+    var ctx = document.getElementById("myChart").getContext("2d");
+    var myChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        datasets: [{
+          label: "Expenses",
+          data: [1000, 2000, 3000, 4000, 5000, 6000],
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          borderWidth: 1,
+        }, {
+          label: "Income",
+          data: [2000, 3000, 4000, 5000, 6000, 7000],
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          borderWidth: 1,
+        }, ],
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+            },
+          }, ],
+        },
+      },
+    });
+
+    // FullCalendar
+    document.addEventListener("DOMContentLoaded", function() {
+      var calendarEl = document.getElementById("calendar");
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        headerToolbar: {
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth,timeGridWeek,timeGridDay",
+        },
+        events: [
+          // Add your events here
+          {
+            title: "Event 1",
+            start: "2024-06-01",
+            end: "2024-06-02",
+          }, {
+            title: "Event 2",
+            start: "2024-06-05",
+            end: "2024-06-07",
+          },
+        ],
+      });
+      calendar.render();
+    });
+  </script>
+{% endblock extra_js %}

@@ -37,10 +37,16 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop("user")
         user_data["role"] = self.Meta.model.__name__
 
-        user = User.objects.create(**user_data)
         try:
-            return self.Meta.model.objects.create(user=user, **validated_data)
+            user_instance = User.objects.create(**user_data)
+            return self.Meta.model.objects.create(
+                user=user_instance, **validated_data
+            )
         except Exception as e:
+            # delete the user instance if the model instance creation fails
+            if user_instance:
+                user_instance.delete()
+
             return Response(
                 {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
             )

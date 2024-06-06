@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "https://eduverse.lzcorp.tech",
+    "https://eduverse-dev.lzcorp.tech",
+]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,7 +79,7 @@ if DEBUG:
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
-        # "django_browser_reload.middleware.BrowserReloadMiddleware",
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
     ]
     INTERNAL_IPS = [
         "127.0.0.1",
@@ -104,6 +110,14 @@ TEMPLATES = [
 
 # lasts for 30 days
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        # trunk-ignore(bandit/B108)
+        "LOCATION": "/tmp/django_cache",
+    }
+}
 
 LOGIN_REDIRECT_URL = "core:home"
 LOGIN_URL = "login"
@@ -229,7 +243,7 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_user",
     "social_core.pipeline.user.get_username",
     "social_core.pipeline.social_auth.associate_by_email",
-    "social_core.pipeline.user.create_user",
+    # "social_core.pipeline.user.create_user",
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",

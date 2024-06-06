@@ -9,6 +9,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.authtoken import views as token_views
 
 from core import views as core_views
 
@@ -19,6 +20,7 @@ urlpatterns = [
     path(
         "api/swagger/", SpectacularSwaggerView.as_view(), name="swagger-docs"
     ),
+    path("api/token/", token_views.obtain_auth_token, name="api-token"),
     path("api/docs/", SpectacularRedocView.as_view(), name="api-docs"),
     path("api/", include("core.api.urls")),
     path("api/", include("students.api.urls")),
@@ -74,7 +76,7 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += [
         path("__debug__/", include("debug_toolbar.urls")),
-        # path("__reload__/", include("django_browser_reload.urls")),
+        path("__reload__/", include("django_browser_reload.urls")),
     ]
 
 

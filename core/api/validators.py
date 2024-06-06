@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 
 from rest_framework import serializers
 
@@ -62,7 +62,9 @@ class UserValidationMixin:
 
         if "view" in request.parser_context:
             view = request.parser_context.get("view")
-            response = view.get(request)
+            response = view.get(
+                request, pk=request.parser_context.get("kwargs").get("pk")
+            )
             if "guardian" in response.data:
                 guardian_id = response.data.get("guardian")
                 if guardian_id:
@@ -73,6 +75,8 @@ class UserValidationMixin:
             if user_data:
                 for field in unneeded_fields:
                     user_data.pop(field, None)
+            if "user" not in response.data:
+                user_data = {}
 
         if len(user_data) == 0:
             user_data = data.pop("user", data)
@@ -121,37 +125,59 @@ class UserValidationMixin:
                 )
 
         if request.method in ["PUT", "PATCH", "DELETE"]:
-            if (
-                not request_user.is_superuser
-                and request_user != new_user
-                and request_user.institution != new_user.institution
-                and request_user != new_user.institution.owner
-            ):
-                raise serializers.ValidationError(
-                    {
-                        "user": "You do not have permission to modify this "
-                        "object."
-                    },
-                    "does_not_have_institution_and_not_admin",
-                )
+            if request.method == "PATCH":
+                # in case of a patch, let's ensure the user already exists and
+                # then update its data with its existing one before proceeding
+                # to the partial update
+                if request_user.is_superuser:
+                    pk = request.user.pk  # Get the user's ID from the request
+                    user = User.objects.get(pk=pk)
+                else:
+                    pk = request.user.pk  # Get the user's ID from the request
+                    user = User.objects.get(
+                        pk=pk, institution=request_user.institution
+                    )
+                new_user.__dict__.update(user.__dict__)
 
-            if not (
-                request.user.is_superuser
-                or new_user.institution == request.user.institution
-            ):
-                # no one should be able to modify the details of other users
-                # from another institution
-                raise serializers.ValidationError(
-                    {"user": "Invalid operation, user not found."},
-                    "invalid_institution",
-                )
+            if new_user.institution is not None:
+                if (
+                    not request_user.is_superuser
+                    and request_user != new_user
+                    and request_user.institution != new_user.institution
+                    and request_user != new_user.institution.owner
+                ):
+                    raise serializers.ValidationError(
+                        {
+                            "user": "You do not have permission to modify this "
+                            "object."
+                        },
+                        "does_not_have_institution_and_not_admin",
+                    )
 
-        if request_user.role == "Super Admin":
+                if not (
+                    request.user.is_superuser
+                    or new_user.institution == request.user.institution
+                ):
+                    # no one should be able to modify the details of other users
+                    # from another institution
+                    raise serializers.ValidationError(
+                        {"user": "Invalid operation, user not found."},
+                        "invalid_institution",
+                    )
+
+        if request_user.role == "Super Admin" and request.user == new_user:
             # ensure that Institution owners are at least 18 years old
-            if datetime.today().year - request_user.date_of_birth.year < 18:
+            if date.today().year - request_user.date_of_birth.year < 18:
                 raise serializers.ValidationError(
                     {"user": "Institution owners must be at least 18 years."},
-                    "age_restriction",
+                    "age_restriction_",
+                )
+        if new_user.role == "Super Admin":
+            # ensure that Institution owners are at least 18 years old
+            if date.today().year - new_user.date_of_birth.year < 18:
+                raise serializers.ValidationError(
+                    {"user": "Institution owners must be at least 18 years."},
+                    "age_restriction_here",
                 )
 
         if new_user.date_of_birth > date.today():
@@ -197,7 +223,7 @@ class InstitutionValidationMixin:
                     },
                     "does_not_have_institution",
                 )
-            if request.method in ["PATCH"]:
+            if request.method == "PATCH":
                 # in case of a patch, let's ensure the institution already
                 # exists and then update its data with its existing one before
                 # proceeding to the partial update

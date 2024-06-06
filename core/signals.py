@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from core.models import Institution, User
+from core.models import Institution, InstitutionProfile, User, UserProfile
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
@@ -41,3 +41,22 @@ def assign_institution_owner(sender, instance, created, **kwargs):
         instance.owner = user
         instance.save()
         user.save()
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
+@receiver(post_save, sender=Institution)
+def save_institution_profile(sender, instance, **kwargs):
+    if hasattr(instance, "profile"):
+        instance.profile.save()
+    else:
+        InstitutionProfile.objects.create(institution=instance)
