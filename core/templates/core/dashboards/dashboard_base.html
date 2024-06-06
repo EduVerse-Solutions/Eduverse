@@ -57,7 +57,13 @@
               <a href="#" class="block px-4 py-2 hover:bg-gray-200">Institution</a>
               <a href="#" class="block px-4 py-2 hover:bg-gray-200">Account Settings</a>
               <div class="border-t border-gray-200"></div>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-200">Log Out</a>
+              <form id="logout-form" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+              </form>
+              <a href="#"
+                 class="block px-4 py-2 hover:bg-gray-200"
+                 onclick="document.getElementById('logout-form').submit();">Log Out</a>
+              {% comment %} <a href="#" class="block px-4 py-2 hover:bg-gray-200">Log Out</a> {% endcomment %}
             </div>
           </div>
         </div>
