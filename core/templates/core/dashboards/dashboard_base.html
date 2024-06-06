@@ -47,14 +47,16 @@
         <div class="flex items-center space-x-4">
           <div class="relative dropdown">
             <button class="flex items-center focus:outline-none">
-              <img src="path/to/admin-image.png"
+              <img src="{{ user.profile.avatar.url }}"
                    alt="Admin"
                    class="h-10 w-10 rounded-full mr-2" />
             </button>
-            <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-20 hidden">
+            <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10 hidden">
               <a href="{% url "core-api:user-profile-detail" user.profile.pk %}"
                  class="block px-4 py-2 hover:bg-gray-200">Profile</a>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-200">Institution</a>
+              {% if user.is_superuser or user == user.institution.owner %}
+                <a href="#" class="block px-4 py-2 hover:bg-gray-200">Institution</a>
+              {% endif %}
               <a href="#" class="block px-4 py-2 hover:bg-gray-200">Account Settings</a>
               <div class="border-t border-gray-200"></div>
               <form id="logout-form" method="post" action="{% url 'logout' %}">
@@ -63,7 +65,6 @@
               <a href="#"
                  class="block px-4 py-2 hover:bg-gray-200"
                  onclick="document.getElementById('logout-form').submit();">Log Out</a>
-              {% comment %} <a href="#" class="block px-4 py-2 hover:bg-gray-200">Log Out</a> {% endcomment %}
             </div>
           </div>
         </div>
