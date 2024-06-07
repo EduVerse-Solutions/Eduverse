@@ -1,17 +1,9 @@
 {% extends base_dashboard_template %}
 
-{% comment %} This place is where the user sees when they want to update their
-information
-It's what they see when they click on their profile
-{% endcomment %}
 {% load rest_framework %}
-{% block extra_css %}
-
-{% endblock extra_css %}
 
 {% block content %}
-  <h1>Profile - {{ profile.user.username }}</h1>
-
+<h1 class="text-2xl">User Profile</h1>
   <form id="profileForm" enctype="multipart/form-data" method="post">
     {% csrf_token %}
     <div class="flex flex-col">{% render_form serializer %}</div>

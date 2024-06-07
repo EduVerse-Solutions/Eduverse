@@ -71,8 +71,9 @@ class EduverseAPIRoot(APIRootView):
         for basename in base_names:
             relative_url = reverse(basename)
             absolute_url = request.build_absolute_uri(relative_url)
-            key = absolute_url.split("/")[-2]
+            key = absolute_url.split("/")[-1]
             response.data[key] = absolute_url
+
         return response
 
 

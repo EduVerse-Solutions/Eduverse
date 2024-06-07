@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import which
 
 from django.contrib import messages
+from django.shortcuts import redirect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -52,7 +53,6 @@ INSTALLED_APPS = [
     "django_filters",
     "tailwind",
     "theme",
-    "django_browser_reload",
 ]
 
 
@@ -79,7 +79,6 @@ if DEBUG:
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
-        "django_browser_reload.middleware.BrowserReloadMiddleware",
     ]
     INTERNAL_IPS = [
         "127.0.0.1",
@@ -111,14 +110,6 @@ TEMPLATES = [
 # lasts for 30 days
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        # trunk-ignore(bandit/B108)
-        "LOCATION": "/tmp/django_cache",
-    }
-}
-
 LOGIN_REDIRECT_URL = "core:home"
 LOGIN_URL = "login"
 
@@ -127,6 +118,8 @@ LOGOUT_REDIRECT_URL = "core:home"
 WSGI_APPLICATION = "eduverse.wsgi.application"
 
 AUTH_USER_MODEL = "core.User"
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

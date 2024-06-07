@@ -7,10 +7,25 @@ from core.api.validators import (
 from core.models import Institution, User, UserProfile
 
 
+class InstitutionRelatedField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        if "request" not in self.context:
+            return Institution.objects.none()
+
+        request = self.context["request"]
+
+        if request.user.is_superuser:
+            return Institution.objects.all()
+
+        return Institution.objects.filter(owner__pk=request.user.pk)
+
+
 class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="core-api:user-detail"
     )
+
+    institution = InstitutionRelatedField()
 
     class Meta:
         model = User
@@ -42,12 +57,27 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
         ]
 
 
+class OwnerRelatedField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        if "request" not in self.context:
+            return User.objects.none()
+
+        request = self.context["request"]
+
+        if request.user.is_superuser:
+            return User.objects.all()
+
+        return User.objects.filter(pk=request.user.pk)
+
+
 class InstitutionSerializer(
     InstitutionValidationMixin, serializers.ModelSerializer
 ):
     url = serializers.HyperlinkedIdentityField(
         view_name="core-api:institution-detail"
     )
+
+    owner = OwnerRelatedField()
 
     class Meta:
         model = Institution
@@ -57,9 +87,9 @@ class InstitutionSerializer(
 
 class UserSerializerWithoutInstitution(UserSerializer):
     class Meta(UserSerializer.Meta):
-        read_only_fields = UserSerializer.Meta.read_only_fields + [
-            "institution"
-        ]
+        new_fields = list(UserSerializer.Meta.fields)
+        new_fields.remove("institution")
+        fields = new_fields
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

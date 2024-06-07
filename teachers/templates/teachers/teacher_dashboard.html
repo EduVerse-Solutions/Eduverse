@@ -1,15 +1,92 @@
 {% extends "core/dashboards/dashboard_base.html" %}
 
+{% load static %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static "teachers/css/main.css" %}">
+{% endblock extra_css %}
+
 {% block sidebar %}
-  <nav>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Teacher Home</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">My Classes</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Attendance</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Profile</a>
+  <!-- Sidebar -->
+  <nav id="sidebar"
+       class="sidebar bg-blue-800 text-white h-full w-64 relative h-screen">
+    <div class="p-4">
+      <h2 class="text-xl font-bold">Teacher Menu</h2>
+      <ul class="mt-4">
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-table-columns mr-2"></i>Dashboard</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-gear mr-2"></i>General Settings</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
+            <i class=""></i> Classes</a>
+          <div class="subnav">
+            <button class="subnavbtn">
+              <i class="fa-solid fa-chalkboard-user mr-2"></i>
+            </button>
+            <div class="subnav-content">
+              <a href="#allclasses">All Classes</a>
+              <a href="#newclasses">New Classes</a>
+            </div>
+          </div>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800:">
+          <a href="#"> <i class="fa-solid fa-book-open mr-2"></i>Subjects</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'studentsSubmenu')">
+            <i class="fa-solid fa-school mr-2"></i>Students</a>
+          <ul id="studentsSubmenu" class="submenu pl-4">
+            <li class="py-2 px-4 hover:bg-blue-800">
+              <a href="#">All Students</a>
+            </li>
+          </li>
+        </ul>
+        <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'feesSubmenu')">
+            <i class="fa-solid fa-coins mr-2"></i> Fees</a>
+          <ul id="feesSubmenu" class="submenu pl-4">
+          </ul>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'salarySubmenu')">
+            <i class="fa-solid fa-wallet mr-2"></i>Salary Renumeration</a>
+          <ul id="salarySubmenu" class="submenu pl-4">
+            <li class="py-2 px-4 hover:bg-blue-800">
+              <a href="#">Salary Breakdown</a>
+            </li>
+          </ul>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-calendar-days mr-2"></i>Timetable</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <a href="#">
+            <i class="fa-solid fa-envelope-open-text mr-2"></i>Exams</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-blue-800">
+          <form id="logout-form" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+          </form>
+          <a href="#" onclick="document.getElementById('logout-form').submit();">
+            <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
+        </li>
+      </ul>
+    </div>
   </nav>
 {% endblock sidebar %}
 
 {% block content %}
-  <h1 class="text-2xl font-semibold text-gray-700">Teacher Dashboard Content</h1>
-  <!-- Teacher specific content goes here -->
+  <!-- Main Content -->
+  <div class="p-4">
+    <h1 class="text-2xl font-bold">Welcome to the Teacher Dashboard</h1>
+    <!-- Calendar for Events -->
+    <div class="card mt-4">
+      <div id="calendar"></div>
+    </div>
+  </div>
 {% endblock content %}

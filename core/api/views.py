@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,7 +66,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = UserSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [IsOwnerOrAdmin, permissions.IsAuthenticated]
     filterset_fields = [
         "username",
         "first_name",
@@ -80,7 +80,7 @@ class UserViewSet(viewsets.ModelViewSet):
         "role",
         "institution",
     ]
-    search_fields = ["username", "email"]
+    search_fields = ["=username", "=email"]
     ordering_fields = ["username", "role"]
 
     def get_queryset(self):
@@ -103,6 +103,8 @@ class UserViewSet(viewsets.ModelViewSet):
             # for users who are not superusers and do not belong to any
             # institution return only their user object
             return User.objects.filter(pk=user.pk)
+
+        return User.objects.none()
 
 
 class InstitutionViewSet(viewsets.ModelViewSet):
@@ -132,7 +134,7 @@ class InstitutionViewSet(viewsets.ModelViewSet):
             if user.institution_id:
                 return Institution.objects.filter(id=user.institution_id)
 
-            return Institution.objects.none()
+        return Institution.objects.none()
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -206,7 +208,7 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
         """
         profile = get_object_or_404(UserProfile, pk=pk)
 
-        base_template = get_base_template(profile.user.role)
+        base_template = get_base_template(request.user.role)
 
         serializer = UserProfileSerializer(
             profile, context={"request": request}
@@ -233,7 +235,7 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
             Response: The HTTP response indicating the success of the update.
         """
         profile = get_object_or_404(UserProfile, pk=pk)
-        base_template = get_base_template(profile.user.role)
+        base_template = get_base_template(request.user.role)
 
         data = request.data.copy()
         user_data = {}
@@ -253,14 +255,15 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
             partial=True,
             context={"request": request},
         )
+
         user_serializer = UserSerializer(
             profile.user,
             data=user_data,
             partial=True,
             context={"request": request},
         )
-        if not serializer.is_valid():
 
+        if not serializer.is_valid():
             return Response(
                 {
                     "serializer": serializer,
@@ -270,9 +273,20 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
             )
 
         if not user_serializer.is_valid():
-            messages.error(
-                request, "Please verify you provided the correct data."
-            )
+            if request.user.role not in ["Super Admin", "Admin"]:
+                messages.error(
+                    request,
+                    "You are not allowed to make this change. Please contact "
+                    "your institution owner.",
+                )
+            else:
+                # get the error and show it
+                errors = user_serializer.errors
+                messages.error(request, "An error occurred.")
+                for key, value in errors.items():
+                    messages.error(
+                        request, f"{key.split('_')}: {value[0]}"
+                    )
 
             return Response(
                 {

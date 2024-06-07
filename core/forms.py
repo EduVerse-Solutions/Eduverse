@@ -20,7 +20,6 @@ form_field_styling = (
 FIELDS = [
     "first_name",
     "last_name",
-    "fullname",
     "email",
     "username",
     "password1",

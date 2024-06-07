@@ -18,13 +18,10 @@
             <i class="fa-solid fa-gear mr-2"></i>General Settings</a>
         </li>
         <li class="py-2 px-4 hover:bg-blue-800 submenu-item">
-          <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
-            <i class=""></i> Classes</a>
           <div class="subnav">
-            <button class="subnavbtn">
-              Classes <i class="fa-solid fa-chalkboard-user mr-2"></i>
+            <button class="subnavbtn" onclick="toggleSubmenu(event, 'classesSubmenu')">Classes <i class="fa-solid fa-chalkboard-user mr-2"></i>
             </button>
-            <div class="subnav-content">
+            <divid="classesSubmenu"  class="subnav-content">
               <a href="#allclasses">All Classes</a>
               <a href="#newclasses">New Classes</a>
             </div>
@@ -94,8 +91,7 @@
         <a href="#">
           <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
       </li>
-    </ul>
-  </div>
+    </div>
 </nav>
 {% endblock sidebar %}
 
@@ -108,19 +104,23 @@
       <!-- Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
         <div class="stat-card">
-          <div>Total Students This Month</div>
+          <button class="stat-button total-students">
+            Total Students This Month
+          </button>
           <div class="text-xl font-bold">0</div>
         </div>
         <div class="stat-card">
-          <div>Total Employees This Month</div>
+          <button class="stat-button total-employees">
+            Total Employees This Month
+          </button>
           <div class="text-xl font-bold">0</div>
         </div>
         <div class="stat-card">
-          <div>Revenue Generated This Month</div>
+          <button class="stat-button revenue">Revenue Generated This Month</button>
           <div class="text-xl font-bold">$0</div>
         </div>
         <div class="stat-card">
-          <div>Total Profit This Month</div>
+          <button class="stat-button total-profit">Total Profit This Month</button>
           <div class="text-xl font-bold">$0</div>
         </div>
       </div>
@@ -133,15 +133,17 @@
       <!-- Daily Information -->
       <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         <div class="card">
-          <div class="text-lg font-semibold">Absent Students Today</div>
+          <button class="stat-button absent-students">Absent Students Today</button>
           <div class="text-xl font-bold">0</div>
         </div>
         <div class="card">
-          <div class="text-lg font-semibold">Present Employees Today</div>
+          <button class="stat-button present-employees">
+            Present Employees Today
+          </button>
           <div class="text-xl font-bold">0</div>
         </div>
         <div class="card">
-          <div class="text-lg font-semibold">New Admissions Today</div>
+          <button class="stat-button new-admissions">New Admissions Today</button>
           <div class="text-xl font-bold">0</div>
         </div>
       </div>

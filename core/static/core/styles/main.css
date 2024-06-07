@@ -276,3 +276,36 @@ a#forgot-password:hover {
   background: #f9fafb;
   margin-bottom: 16px;
 }
+
+.stat-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 20px 40px; /* Added more padding to make buttons more rectangular */
+  border-radius: 12px; /* Adjust this value to make the edges more or less rounded */
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.stat-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.stat-button:active {
+  transform: translateY(0);
+}
+
+/* Individual styling for different buttons */
+.total-students { background-color: #28a745; }
+.total-employees { background-color: #17a2b8; }
+.revenue { background-color: #ffc107; }
+.total-profit { background-color: #dc3545; }
+.absent-students { background-color: #796c7d; }
+.present-employees { background-color: #fd7e14; }
+.new-admissions { background-color: #6610f2; }
+
+ul {
+  list-style: none !important;
+}

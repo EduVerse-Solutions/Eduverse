@@ -8,12 +8,17 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
 from core.forms import InstitutionUpdateForm, UserLoginForm, UserRegisterForm
+from django.contrib import messages
 
+def csrf_failure(request, reason=""):
+    messages.error(request, "CSRF verification failed. Please try again.")
+    return redirect("core:home")
 
 def home(request):
     user = request.user

@@ -34,7 +34,7 @@ urlpatterns = [
     path(
         "institution-profiles/",
         core_api_views.InstitutionProfileListView.as_view(),
-        name="institution-profile-detail",
+        name="institution-profile-list",
     ),
     path(
         "institution-profiles/<str:pk>/",

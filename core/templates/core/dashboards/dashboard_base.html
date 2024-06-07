@@ -31,8 +31,15 @@
           <button class="mr-4 text-white focus:outline-none" onclick="toggleSidebar()">
             <i class="fas fa-bars text-2xl"></i>
           </button>
-          <img src="path/to/logo.png" alt="Logo" class="h-12 mr-4" />
-          <form class="relative">
+          <a href=" {% if user.institution %} {% url "core-api:institution-profile-detail" user.institution.profile.pk %} {% else %}# {% endif %}"
+             class="flex flex-row items-center">
+            {{ user.institution.name }}
+            <img src="{{ user.institution.profile.logo.url }}"
+                 alt="Institution Logo"
+                 class="h-12 mr-4" />
+          </a>
+
+          <form class="relative ml-40">
             <input type="text"
                    placeholder="Search"
                    class="pl-8 pr-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:bg-gray-600" />
@@ -75,12 +82,86 @@
         <!-- Sidebar content will be injected here -->
       {% endblock sidebar %}
       <!-- Main Content -->
-      <main>
+      <main class="mx-8 mt-8">
+        {% if messages %}
+          <div class="container mx-auto">
+            {% for message in messages %}<div class="alert alert-{{ message.tags }}">{{ message }}</div>{% endfor %}
+          </div>
+        {% endif %}
         {% block content %}
         {% endblock content %}
       </main>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+      <script>
+        function toggleSidebar() {
+          document.getElementById("sidebar").classList.toggle("collapsed");
+        }
+
+        function toggleSubmenu(event, submenuId) {
+          event.preventDefault();
+          document.getElementById(submenuId).classList.toggle("submenu-open");
+        }
+
+        // Chart Data
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [{
+              label: "Expenses",
+              data: [1000, 2000, 3000, 4000, 5000, 6000],
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1,
+            }, {
+              label: "Income",
+              data: [2000, 3000, 4000, 5000, 6000, 7000],
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            }, ],
+          },
+          options: {
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                },
+              }, ],
+            },
+          },
+        });
+
+        // FullCalendar
+        document.addEventListener("DOMContentLoaded", function() {
+          var calendarEl = document.getElementById("calendar");
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            headerToolbar: {
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
+            },
+            events: [
+              // Add your events here
+              {
+                title: "Event 1",
+                start: "2024-06-01",
+                end: "2024-06-02",
+              }, {
+                title: "Event 2",
+                start: "2024-06-05",
+                end: "2024-06-07",
+              },
+            ],
+          });
+          calendar.render();
+        });
+      </script>
     </div>
-    {% block extra_js %}
-    {% endblock extra_js %}
+
   </body>
 </html>

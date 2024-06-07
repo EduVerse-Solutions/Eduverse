@@ -79,49 +79,6 @@
 
 {% block content %}
 
-{% endblock content %}
-
-</head>
-<body class="bg-gray-100 flex">
-  <div class="flex-1">
-    <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-blue-800 text-white">
-      <div class="flex items-center">
-        <button class="mr-4 text-white focus:outline-none" onclick="toggleSidebar()">
-          <i class="fas fa-bars text-2xl"></i>
-        </button>
-        <img src="path/to/logo.png" alt="Logo" class="h-12 mr-4" />
-        <form class="relative">
-          <input type="text"
-                 placeholder="Search"
-                 class="pl-8 pr-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:bg-gray-600" />
-          <svg class="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-400 h-5 w-5"
-               fill="currentColor"
-               xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 20 20">
-            <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l4.88 4.88-1.42 1.42-4.87-4.88zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
-          </svg>
-        </form>
-      </div>
-      <div class="flex items-center space-x-4">
-        <a href="playstore-link"
-           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Download on Playstore</a>
-        <div class="relative dropdown">
-          <button class="flex items-center focus:outline-none">
-            <img src="path/to/teacher-image.png"
-                 alt="Admin"
-                 class="h-10 w-10 rounded-full mr-2" />
-          </button>
-          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-20 hidden">
-            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
-            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Account Settings</a>
-            <div class="border-t border-gray-200"></div>
-            <a href="#" class="block px-4 py-2 hover:bg-gray-200">Log Out</a>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <!-- Main Content -->
     <div class="p-4">
       <h1 class="text-2xl font-bold">Welcome to the Teacher Dashboard</h1>
@@ -130,46 +87,47 @@
         <div id="calendar"></div>
       </div>
     </div>
-  </div>
+{% endblock content %}
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
-  <script>
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("collapsed");
-    }
+  {% block extra_js %}
 
-    function toggleSubmenu(event, submenuId) {
-      event.preventDefault();
-      document.getElementById(submenuId).classList.toggle("submenu-open");
-    }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+    <script>
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("collapsed");
+      }
 
-    // FullCalendar
-    document.addEventListener("DOMContentLoaded", function() {
-      var calendarEl = document.getElementById("calendar");
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        },
-        events: [
-          // Add your events here
-          {
-            title: "Event 1",
-            start: "2024-06-01",
-            end: "2024-06-02",
-          }, {
-            title: "Event 2",
-            start: "2024-06-05",
-            end: "2024-06-07",
+      function toggleSubmenu(event, submenuId) {
+        event.preventDefault();
+        document.getElementById(submenuId).classList.toggle("submenu-open");
+      }
+
+      // FullCalendar
+      document.addEventListener("DOMContentLoaded", function() {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
           },
-        ],
+          events: [
+            // Add your events here
+            {
+              title: "Event 1",
+              start: "2024-06-01",
+              end: "2024-06-02",
+            }, {
+              title: "Event 2",
+              start: "2024-06-05",
+              end: "2024-06-07",
+            },
+          ],
+        });
+        calendar.render();
       });
-      calendar.render();
-    });
-  </script>
-</body>
-</html>
+    </script>
+  {% endblock extra_js %}
