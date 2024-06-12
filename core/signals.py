@@ -44,7 +44,7 @@ def assign_institution_owner(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance: User, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
@@ -55,7 +55,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Institution)
-def save_institution_profile(sender, instance, **kwargs):
+def save_institution_profile(sender, instance: Institution, **kwargs):
     if hasattr(instance, "profile"):
         instance.profile.save()
     else:
