@@ -83,6 +83,12 @@ class User(AbstractUser):
         self.fullname = f"{self.first_name.strip()} {self.last_name.strip()}"
         self.fullname = self.fullname.title()
 
+        # before saving, let set all the fields with empty values to None
+        for field in self._meta.fields:
+            if field.null and field.blank:
+                if getattr(self, field.name) == "":
+                    setattr(self, field.name, None)
+
         super().save(*args, **kwargs)
 
     def get_roles(self):
