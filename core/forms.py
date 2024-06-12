@@ -11,7 +11,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from phonenumber_field.formfields import PhoneNumberField
 
-from core.models import Institution, Profile, User
+from core.models import Institution, User
 
 form_field_styling = (
     "form-control mt-1 p-2 w-full bg-gray-100 rounded-md text-gray-900"
@@ -20,7 +20,6 @@ form_field_styling = (
 FIELDS = [
     "first_name",
     "last_name",
-    "fullname",
     "email",
     "username",
     "password1",
@@ -346,36 +345,3 @@ class UserLoginForm(AuthenticationForm):
                 self.confirm_login_allowed(self.user_cache)
 
         return self.cleaned_data
-
-
-class UpdateUserForm(forms.ModelForm):
-    """
-    Form for updating user information.
-
-    Inherits from ModelForm provided by Django.
-    Provides fields for updating username and email.
-    """
-
-    class Meta:
-        model = User
-        fields = [
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "phone_number",
-            "date_of_birth",
-        ]
-
-
-class UpdateProfileForm(forms.ModelForm):
-    """
-    Form for updating user profile information.
-
-    Inherits from ModelForm provided by Django.
-    Provides fields for updating avatar and bio.
-    """
-
-    class Meta:
-        model = Profile
-        fields = ["avatar", "bio"]

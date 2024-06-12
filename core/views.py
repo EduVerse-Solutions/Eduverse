@@ -1,7 +1,6 @@
 """Views for the core app."""
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
     LoginView,
@@ -13,46 +12,39 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from core.forms import (
-    InstitutionUpdateForm,
-    UpdateProfileForm,
-    UpdateUserForm,
-    UserLoginForm,
-    UserRegisterForm,
-)
+from core.forms import InstitutionUpdateForm, UserLoginForm, UserRegisterForm
+
+
+def csrf_failure(request, reason=""):
+    messages.error(request, "CSRF verification failed. Please try again.")
+    return redirect("core:home")
 
 
 def home(request):
     user = request.user
     if user.is_authenticated:
-        if user.role in ["Super Admin", "Admin"]:
-            return render(
-                request,
-                "core/admin_dashboard.html",
-                context={"name": "Admin Dashboard"},
-            )
-
-        elif user.role == "Student":
-            return render(
-                request,
-                "core/student_dashboard.html",
-                context={"name": "Student Dashboard"},
-            )
-
-        elif user.role == "Teacher":
-            return render(
-                request,
-                "core/teacher_dashboard.html",
-                context={"name": "Teacher Dashboard"},
-            )
+        match user.role:
+            case "Super Admin" | "Admin":
+                template = "core/dashboards/admin_dashboard.html"
+                name = "Admin Dashboard"
+            case "Student":
+                template = "students/student_dashboard.html"
+                name = "Student Dashboard"
+            case "Teacher":
+                template = "teachers/teacher_dashboard.html"
+                name = "Teacher Dashboard"
+            case _:
+                template = "core/home.html"
+                name = "Home"
+    else:
+        template = "core/home.html"
+        name = "Home"
 
     return render(
-        request, template_name="core/home.html", context={"name": "Home"}
+        request,
+        template_name=template,
+        context={"name": name},
     )
-
-
-def institution(request):
-    return render(request, "core/institution.html", {"name": "Institution"})
 
 
 def add_institution(request):
@@ -234,44 +226,6 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     extra_context = {"name": "Password Reset"}
 
 
-@login_required
-def profile(request):
-    """
-    View for user profile.
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-
-    Returns:
-        HttpResponse: The HTTP response object containing the rendered profile
-        page.
-    """
-    if request.method == "POST":
-        user_form = UpdateUserForm(request.POST, instance=request.user)
-        profile_form = UpdateProfileForm(
-            request.POST, request.FILES, instance=request.user.profile
-        )
-
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, "Your profile is updated successfully")
-            return redirect(to="core:profile")
-    else:
-        user_form = UpdateUserForm(instance=request.user)
-        profile_form = UpdateProfileForm(instance=request.user.profile)
-
-    return render(
-        request,
-        "users/profile.html",
-        {
-            "user_form": user_form,
-            "profile_form": profile_form,
-            "name": "Profile",
-        },
-    )
-
-
 class ChangePasswordView(
     SuccessMessageMixin, PasswordChangeView, LoginRequiredMixin
 ):
@@ -289,9 +243,9 @@ class ChangePasswordView(
         password page.
     """
 
-    template_name = "users/change_password.html"
+    template_name = "core/change_password.html"
     success_message = "Successfully Changed Your Password"
-    success_url = reverse_lazy("users:home")
+    success_url = reverse_lazy("core:home")
     extra_context = {"name": "Change Password"}
 
 
@@ -306,4 +260,4 @@ def auth_canceled(request):
         HttpResponse: The rendered response containing the
         'auth_canceled.html' template.
     """
-    return render(request, "users/auth_canceled.html")
+    return render(request, "core/auth_canceled.html")

@@ -36,7 +36,7 @@ class BaseValidationMixin:
                 }
             )
 
-        request_user = request.user
+        request.user = request.user
         if (
             Teacher.objects.filter(
                 user__institution=request.user.institution
@@ -73,28 +73,36 @@ class BaseValidationMixin:
         model_data = data.pop(self.model_name, data)
 
         if model_data is None:
+            print("Yep, error")
             raise serializers.ValidationError(
-                f"No {self.model_name} data was provided."
+                {
+                    f"{self.model_name}_validation": f"No {self.model_name} data was provided."
+                }
             )
 
-        user_data = request.data.get("user", None)
+        user_data = data.get("user", None)
         if user_data is None:
-            raise serializers.ValidationError("No user data was provided.")
-        user_data["institution"] = request_user.institution
+            raise serializers.ValidationError(
+                {
+                    f"{self.model_name}_validation": "No user data was "
+                    "provided."
+                }
+            )
+        user_data["institution"] = request.user.institution
         user = User(**user_data)
 
-        if request_user.is_superuser:
+        if request.user.is_superuser:
             return data  # the site admin is allowed full control
 
         if request.method in ["POST", "PUT", "PATCH"]:
-            if not (request_user.is_superuser or request_user.institution):
+            if not (request.user.is_superuser or request.user.institution):
                 raise serializers.ValidationError(
                     "Only and users with an institution can create "
                     f"{self.model_name}s."
                 )
 
-        if request_user.institution:
-            if user.institution != request_user.institution:
+        if request.user.institution:
+            if user.institution != request.user.institution:
                 raise serializers.ValidationError(
                     f"You can only create {self.model_name}s in your own "
                     "institution."
@@ -138,7 +146,7 @@ class StudentValidationMixin(BaseValidationMixin):
             )
 
         student_data = data
-        user_data = request.data.get("user")
+        user_data = data.get("user")
 
         # Set the institution for the user
         if not isinstance(user_data["institution"], Institution):
@@ -232,7 +240,8 @@ class StudentValidationMixin(BaseValidationMixin):
                     }
                 )
 
-        return request.data
+        data["user"] = user_data
+        return data
 
 
 class GuardianValidationMixin(BaseValidationMixin):

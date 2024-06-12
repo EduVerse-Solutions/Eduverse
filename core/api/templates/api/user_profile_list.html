@@ -1,0 +1,26 @@
+{% extends base_dashboard_template %}
+
+{% block content %}
+  <h1 class="text-2xl">Users</h1>
+  <ul>
+    {% for profile in profiles %}
+      {% comment %} Add good styling to this {% endcomment %}
+      <li>
+        <p>
+          <a href="{% url "core-api:user-profile-detail" pk=profile.pk %}">{{ profile.user.fullname }} -
+            {% comment %}
+            Instead of Super Admin, let's say they are the owner
+            of he institution
+            {% endcomment %}
+            {% if profile.user.role == "Super Admin" %}
+              Institution Owner
+            {% else %}
+              {% comment %} for all other users, their roles are used {% endcomment %}
+              {{ profile.user.role }}
+            {% endif %}
+          </a>
+        </p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

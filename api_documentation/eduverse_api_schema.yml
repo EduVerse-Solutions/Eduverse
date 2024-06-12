@@ -1,0 +1,1741 @@
+openapi: 3.0.3
+security:
+  - tokenAuth: []
+  - cookieAuth: []
+info:
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  title: EduVerse REST APIs
+  version: 1.0.0
+  description: API documentation for the EduVerse School Management project
+servers:
+  - url: https://eduverse.lzcorp.tech
+paths:
+  /api/classes:
+    get:
+      operationId: list_all_classes
+      summary: List All Classes
+      description: |-
+        List all the classes available in your institution.
+        You can filter the results based on all the available fields.
+      tags:
+        - classes
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedClassList"
+    post:
+      operationId: create_class
+      summary: Create a class
+      description: |-
+        Create a class for your institution.
+      tags:
+        - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Class"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          description: Class creation successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        "400":
+          description: Bad Request
+  /api/classes/{id}:
+    get:
+      operationId: get_class_by_id
+      summary: View a a class
+      description: |-
+        Retrieve information about a specific class in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this class.
+          required: true
+      tags:
+        - classes
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+          description: ""
+    put:
+      summary: Update class information
+      description: |-
+        Update the information of a class with a new set of information.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this class.
+          required: true
+      tags:
+        - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Class"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+          description: ""
+    patch:
+      operationId: update_class_partially
+      summary: Update class information (Partially)
+      description: |-
+        Update the information of a class in your information using a partial update.
+        You can provide only the data you need to modify and make the request.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this class.
+          required: true
+      tags:
+        - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedClass"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+          description: ""
+    delete:
+      summary: Delete a class
+      description: |-
+        Delete a class from your institution. Note that this action is irreversible.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this class.
+          required: true
+      tags:
+        - classes
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/guardians:
+    get:
+      summary: List Guardians
+      description: |-
+        List all the guardians in your institution and their wards.
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+      tags:
+        - guardians
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedGuardianList"
+          description: ""
+    post:
+      summary: Create a guardian
+      description: |-
+        Create a guardian associated with students in your institution.
+      tags:
+        - guardians
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Guardian"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+          description: ""
+  /api/guardians/{id}:
+    get:
+      summary: Retrieve Guardian information
+      description: |-
+        Get information about Guardians and their wards.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this guardian.
+          required: true
+      tags:
+        - guardians
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+          description: ""
+    put:
+      summary: Update a guardian
+      description: |-
+        Update a guardian in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this guardian.
+          required: true
+      tags:
+        - guardians
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Guardian"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+          description: ""
+    patch:
+      summary: Update Guardian (Partially)
+      description: |-
+        Selectively update the information for a Guardian.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this guardian.
+          required: true
+      tags:
+        - guardians
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedGuardian"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+          description: ""
+    delete:
+      summary: Delete a guardian
+      description: |-
+        Deletes the guardian as well their related wards.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this guardian.
+          required: true
+      tags:
+        - guardians
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/institutions:
+    get:
+      summary: List institutions
+      description: |-
+        List the institutions you are part of.
+      tags:
+        - institutions
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedInstitutionList"
+          description: ""
+    post:
+      summary: Create an institution
+      description: |-
+        Create your institution for your school. Once an institution is created, you will be allowed to perform all other administrative tasks.
+      tags:
+        - institutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Institution"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Institution"
+          description: ""
+  /api/institutions/{id}:
+    get:
+      summary: View an institution
+      description: |-
+        View all the information about your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this institution.
+          required: true
+      tags:
+        - institutions
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Institution"
+          description: ""
+    put:
+      summary: Update an institution
+      description: |-
+        This endpoint allows you to update the information about your institution whenever you need to.
+        Provide the required information to update it.
+        If you'd like to update partially, check out the partial update endpoint.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this institution.
+          required: true
+      tags:
+        - institutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Institution"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Institution"
+          description: ""
+    patch:
+      summary: Update an institution (Partially)
+      description: |-
+        This endpoint is the same as the PUT method.
+        The only difference is that you can provide only the information that needs to be updated.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this institution.
+          required: true
+      tags:
+        - institutions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedInstitution"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Institution"
+          description: ""
+    delete:
+      summary: Delete an institution
+      description: |-
+        When you need to delete an institution, use this endpoint.
+        Note: This is a destructive action and not reversible. This will recursively remove everything linked to the institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this institution.
+          required: true
+      tags:
+        - institutions
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/students:
+    get:
+      summary: List Students
+      description: |-
+        List all the students in your institution. The response data, like all others are paginated.
+        You can use the all the available fields to filter the response.
+      tags:
+        - students
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedStudentList"
+          description: ""
+    post:
+      summary: Create a student
+      description: |-
+        Create a student in your institution.
+      tags:
+        - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Student"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+          description: ""
+  /api/students/{id}:
+    get:
+      summary: View a student
+      description: |-
+        Use this view to retrieve information about a particular student in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this student.
+          required: true
+      tags:
+        - students
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+          description: ""
+    put:
+      summary: Update a student
+      description: |-
+        Update the information for a user in your institution.
+        Students are allowed to modify only a subset of this information, for anything regarding a student's data, management is in charge of it.
+        The usual flow is a student raising a ticket to modify some information, once it is accepted, this endpoint gets the job done.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this student.
+          required: true
+      tags:
+        - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Student"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+          description: ""
+    patch:
+      summary: Update a student (Partially)
+      description: |-
+        This behaves in the same way as the PUT method. The only difference is you don't have to provide all the details.
+        You can specifiy only the fields you need to update.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this student.
+          required: true
+      tags:
+        - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedStudent"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+          description: ""
+    delete:
+      summary: Delete a student
+      description: |-
+        Delete a student from your institution. Note that this action is irreversible.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this student.
+          required: true
+      tags:
+        - students
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/subjects:
+    get:
+      summary: List Subjects
+      description: |-
+        List all the subjects available in your institution.
+      tags:
+        - subjects
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedSubjectList"
+          description: ""
+    post:
+      summary: Create a subject.
+      description: |-
+        Create a subject for the institution.
+      tags:
+        - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subject"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+          description: ""
+  /api/subjects/{id}:
+    get:
+      summary: View a subject
+      description: |-
+        Retrieve the information about a subject.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this subject.
+          required: true
+      tags:
+        - subjects
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+          description: ""
+    put:
+      summary: Update a subject.
+      description: |-
+        Update the information for a subject.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this subject.
+          required: true
+      tags:
+        - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subject"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+          description: ""
+    patch:
+      operationId: subjects_partial_update
+      summary: Update a subject (Partially)
+      description: |-
+        A view class for handling Subject objects.
+
+        This view class handles the CRUD operations for Subject objects.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this subject.
+          required: true
+      tags:
+        - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedSubject"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+    delete:
+      summary: Delete a subject
+      description: |-
+        Use this endpoint to delete a subject you no longer need in your institution.
+
+        Note that this is a destructive action and irreversible.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this subject.
+          required: true
+      tags:
+        - subjects
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/teachers:
+    get:
+      summary: List teachers
+      description: |-
+        List all the teachers in your organization.
+      tags:
+        - teachers
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedTeacherList"
+          description: ""
+    post:
+      summary: Create a teacher
+      description: |-
+        Create a teacher in your institution.
+      tags:
+        - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Teacher"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+          description: ""
+  /api/teachers/{id}:
+    get:
+      summary: View a teacher
+      description: |-
+        View the information about a specific teacher in your organization.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this teacher.
+          required: true
+      tags:
+        - teachers
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+          description: ""
+    put:
+      summary: Update a teacher
+      description: |-
+        Update the information of a teacher in your organization by providing all the necessary fields.
+        This endpoint requires all the fields to filled, if you need to partially update the information, use the partial endpoint.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this teacher.
+          required: true
+      tags:
+        - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Teacher"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+          description: ""
+    patch:
+      operationId: update_teacher_partially
+      summary: Update a teacher (Partially)
+      description: |-
+        Selectively update the information of a teacher in your institution.
+        List out only the fields you'd like to change and send the request.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this teacher.
+          required: true
+      tags:
+        - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedTeacher"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+          description: ""
+    delete:
+      operationId: delete_teacher
+      summary: Delete a teacher
+      description: |-
+        Delete a teacher in your institution. Note: This action is irreversible.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this teacher.
+          required: true
+      tags:
+        - teachers
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+  /api/users:
+    get:
+      operationId: list_users
+      summary: List users
+      description: |-
+        List all users in your organization.
+      tags:
+        - users
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUserList"
+          description: ""
+    post:
+      operationId: create_user
+      summary: Create a User
+      description: |-
+        Use this endpoint directly if you want to create an administrative user.
+        For example, institution owners or assistant managers. For specific users, use their respective endpoints.
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: ""
+  /api/users/{id}:
+    get:
+      operationId: view_user
+      summary: View a user
+      description: |-
+        Use this endpoint to retrieve the information about a user in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this user.
+          required: true
+      tags:
+        - users
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: ""
+    put:
+      operationId: update_user
+      summary: Update a user
+      description: |-
+        Update the information of a user in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this user.
+          required: true
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: ""
+    patch:
+      operationId: update_user_partially
+      summary: Update user information (Partially)
+      description: |-
+        Update the information of a user in your institution.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this user.
+          required: true
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchedUser"
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: ""
+    delete:
+      operationId: delete_user
+      summary: Delete a user
+      description: |-
+        This endpoint is destructive as it removes every linkage the user has.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this user.
+          required: true
+      tags:
+        - users
+      security:
+        - tokenAuth: []
+        - cookieAuth: []
+      responses:
+        "204":
+          description: No response body
+components:
+  schemas:
+    Class:
+      type: object
+      description: Class serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        class_fee:
+          type: string
+          format: decimal
+        institution:
+          type: string
+          format: uuid
+        teacher:
+          type: string
+          format: uuid
+      required:
+        - class_fee
+        - institution
+        - name
+        - teacher
+    Guardian:
+      type: object
+      description: |-
+        Serializer for the Guardian model.
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        wards:
+          type: array
+          items:
+            type: string
+            format: uuid
+        profession:
+          type: string
+          nullable: true
+          maxLength: 100
+        relationship:
+          type: string
+          maxLength: 100
+      required:
+        - wards
+        - relationship
+        - profession
+    Institution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        website:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        tagline:
+          type: string
+          nullable: true
+          maxLength: 100
+        owner:
+          type: string
+          format: uuid
+      required:
+        - address
+        - email
+        - name
+        - owner
+    PaginatedClassList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/classes/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/classes/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Class"
+    PaginatedGuardianList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/guardians/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/guardians/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Guardian"
+    PaginatedInstitutionList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/institutions/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/institutions/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Institution"
+    PaginatedStudentList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/students/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/students/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Student"
+    PaginatedSubjectList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/subjects/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/subjects/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subject"
+    PaginatedTeacherList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/teachers/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/teachers/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+    PaginatedUserList:
+      type: object
+      required:
+        - count
+        - data
+      properties:
+        count:
+          type: integer
+          example: 20
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/users/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: https://eduverse.lzcorp.tech/api/users/?page=2
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    PatchedClass:
+      type: object
+      description: Class serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        class_fee:
+          type: string
+          format: decimal
+        institution:
+          type: string
+          format: uuid
+        teacher:
+          type: string
+          format: uuid
+    PatchedGuardian:
+      type: object
+      description: |-
+        Serializer for the Guardian model.
+
+        This serializer is used to convert Guardian model instances into JSON
+        representations and vice versa. It provides validation for the wards field
+        to ensure that all wards are instances of the Student model.
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        wards:
+          type: array
+          items:
+            type: string
+            format: uuid
+        profession:
+          type: string
+          nullable: true
+          maxLength: 100
+        relationship:
+          type: string
+          nullable: true
+          maxLength: 100
+    PatchedInstitution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        website:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        tagline:
+          type: string
+          nullable: true
+          maxLength: 100
+        owner:
+          type: string
+          format: uuid
+    PatchedStudent:
+      type: object
+      description: |-
+        Serializer class for the Student model.
+
+        This serializer is used to convert the Student model instances into JSON
+        representations and vice versa. It also includes validation logic for the
+        student data.
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        admission_number:
+          type: string
+          maxLength: 20
+        date_of_admission:
+          type: string
+          format: date
+        date_of_graduation:
+          type: string
+          format: date
+          nullable: true
+        guardian:
+          type: string
+          format: uuid
+          nullable: true
+        class_id:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedSubject:
+      type: object
+      description: Subject serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        exam_mark:
+          type: string
+          format: decimal
+        class_id:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedTeacher:
+      type: object
+      description: Teacher serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        monthly_salary:
+          type: string
+          format: decimal
+        date_of_employment:
+          type: string
+          format: date
+    PatchedUser:
+      type: object
+      description: |-
+        A mixin class for validating user information before passing it to the
+        backend for saving.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        username:
+          type: string
+          maxLength: 20
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        fullname:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        date_of_birth:
+          type: string
+          format: date
+        address:
+          type: string
+          nullable: true
+          maxLength: 255
+        sex:
+          $ref: "#/components/schemas/SexEnum"
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        institution:
+          type: string
+          format: uuid
+          nullable: true
+        role:
+          allOf:
+            - $ref: "#/components/schemas/RoleEnum"
+          readOnly: true
+    RoleEnum:
+      enum:
+        - Super Admin
+        - Admin
+        - Teacher
+        - Student
+        - Guardian
+        - Librarian
+        - Accountant
+      type: string
+      description: |-
+        * `Super Admin` - Super Admin
+        * `Admin` - Admin
+        * `Teacher` - Teacher
+        * `Student` - Student
+        * `Guardian` - Guardian
+        * `Librarian` - Librarian
+        * `Accountant` - Accountant
+    SexEnum:
+      enum:
+        - M
+        - F
+      type: string
+      description: |-
+        * `M` - Male
+        * `F` - Female
+    Student:
+      type: object
+      description: |-
+        Serializer class for the Student model.
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        admission_number:
+          type: string
+          maxLength: 20
+        date_of_admission:
+          type: string
+          format: date
+        date_of_graduation:
+          type: string
+          format: date
+          nullable: true
+        guardian:
+          type: string
+          format: uuid
+          nullable: true
+        class_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - user
+        - admission_number
+        - date_of_admission
+    Subject:
+      type: object
+      description: Subject serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        exam_mark:
+          type: string
+          format: decimal
+        class_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - exam_mark
+        - name
+    Teacher:
+      type: object
+      description: Teacher serializer.
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        monthly_salary:
+          type: string
+          format: decimal
+        date_of_employment:
+          type: string
+          format: date
+      required:
+        - user
+        - date_of_employment
+        - monthly_salary
+    User:
+      type: object
+      description: |-
+        The schema for the user
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        username:
+          type: string
+          maxLength: 20
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        fullname:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        date_of_birth:
+          type: string
+          format: date
+        address:
+          type: string
+          nullable: true
+          maxLength: 255
+        sex:
+          $ref: "#/components/schemas/SexEnum"
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        institution:
+          type: string
+          format: uuid
+          nullable: false
+        role:
+          allOf:
+            - $ref: "#/components/schemas/RoleEnum"
+      required:
+        - date_of_birth
+        - email
+        - first_name
+        - last_name
+        - sex
+        - username
+        - role
+        - institution
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

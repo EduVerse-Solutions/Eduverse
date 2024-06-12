@@ -71,13 +71,18 @@ class EduverseAPIRoot(APIRootView):
         for basename in base_names:
             relative_url = reverse(basename)
             absolute_url = request.build_absolute_uri(relative_url)
-            key = absolute_url.split("/")[-2]
+            key = absolute_url.split("/")[-1]
             response.data[key] = absolute_url
+
         return response
 
 
 class CustomDefaultRouter(DefaultRouter):
     APIRootView = EduverseAPIRoot
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.trailing_slash = "/?"
 
 
 def create_super_admin(assign_institution=False, **kwargs):
@@ -128,3 +133,19 @@ def create_guardian(assign_institution=False):
         return user
 
     return User.objects.create(**data.user_list[2])
+
+
+def get_user_data(data):
+    """
+    Returns the cleaned user data from the request data.
+
+    This is used mostly when user data is received from from a form. This
+    ensures there's consistency across the user data.
+    """
+    user_data = {}
+    for key in list(data.keys()):
+        if key.startswith("user."):
+            user_key = key.split(".")[1]
+            user_data[user_key] = data.pop(key)[0]
+
+    return user_data

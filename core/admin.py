@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from core.forms import CoreUserAdminRegistrationForm
-from core.models import Institution, User
+from core.models import Institution, InstitutionProfile, User, UserProfile
 
 
 class CoreUserAdmin(UserAdmin):
@@ -60,3 +60,5 @@ class InstitutionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, CoreUserAdmin)
+admin.site.register(UserProfile)
+admin.site.register(InstitutionProfile)

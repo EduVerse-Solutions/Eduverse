@@ -55,22 +55,20 @@ class Class(models.Model):
     teacher = models.ForeignKey(
         Teacher, on_delete=models.CASCADE, null=False, blank=False
     )
-    name = models.CharField(
-        max_length=100, null=False, blank=False, unique=True
-    )
+    name = models.CharField(max_length=100, null=False, blank=False)
     class_fee = models.DecimalField(
         max_digits=10, decimal_places=2, blank=False, null=False
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.institution}"
 
     class Meta:
         ordering = ["name"]
-        unique_together = (
+        unique_together = [
             "institution",
             "name",
-        )
+        ]
 
 
 class Subject(models.Model):
@@ -86,7 +84,13 @@ class Subject(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4)
     class_id = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
-    exam_mark = models.DecimalField(max_digits=3, decimal_places=2)
+    exam_mark = models.DecimalField(max_digits=5, decimal_places=2)
+    teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="subjects_taught",
+    )
 
     def __str__(self):
         return self.name

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+          rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css"
+          rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          rel="stylesheet" />
+    <style>
+    .dropdown:hover .dropdown-menu {
+            display: block;
+    }
+
+    .sidebar {
+            transition: width 0.3s;
+    }
+
+    .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+    }
+
+    .submenu {
+            display: none;
+    }
+
+    .submenu-open .submenu {
+            display: block;
+    }
+
+    .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+    }
+
+    .float-right {
+            float: right;
+    }
+
+    .stat-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f9fafb;
+            margin-bottom: 16px;
+    }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <nav id="sidebar"
+         class="sidebar bg-gray-800 text-white h-full w-64 relative">
+      <div class="p-4">
+        <h2 class="text-xl font-bold">Student Menu</h2>
+        <ul class="mt-4">
+          <li class="py-2 px-4 hover:bg-gray-700">
+            <a href="#">Dashboard</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700">
+            <a href="#">Users</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700">
+            <a href="#"> <i class="fas fa-cog mr-2"></i> General Settings</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+            <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
+              <i class="fas fa-chalkboard-teacher mr-2"></i> Classes
+              <i class="fas fa-chevron-down float-right"></i>
+            </a>
+            <ul id="classesSubmenu" class="submenu pl-4">
+              <li class="py-2 px-4 hover:bg-gray-600">
+                <a href="#">All Classes</a>
+              </li>
+              <li class="py-2 px-4 hover:bg-gray-600">
+                <a href="#">New Class</a>
+              </li>
+            </ul>
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700">
+            <a href="#"> <i class="fas fa-book-open mr-2"></i> Subjects</a>
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+            <a href="#" onclick="toggleSubmenu(event, 'studentsSubmenu')">
+            </li>
+            <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+              <a href="#" onclick="toggleSubmenu(event, 'employeesSubmenu')">
+                <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+                  <a href="#" onclick="toggleSubmenu(event, 'feesSubmenu')">
+                    <i class="fas fa-coins mr-2"></i> Fee Structure
+                    <i class="fas fa-chevron-down float-right"></i>
+                  </a>
+                  <ul id="feesSubmenu" class="submenu pl-4">
+                    <li class="py-2 px-4 hover:bg-gray-600">
+                      <a href="#">Fee Update</a>
+                    </li>
+                    <li class="py-2 px-4 hover:bg-gray-600">
+                      <a href="#">Fee Slip</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="py-2 px-4 hover:bg-gray-700">
+                  <a href="#"> <i class="fas fa-calendar-alt mr-2"></i> Timetable</a>
+                </li>
+                <li class="py-2 px-4 hover:bg-gray-700">
+                  <a href="#"> <i class="fas fa-envelope-open-text mr-2"></i> Exams</a>
+                  <a href="#"></a>
+                </li>
+                <li class="py-2 px-4 hover:bg-gray-700">
+                  <a href="#">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          <div class="flex-1">
+            <!-- Header -->
+            <header class="flex items-center justify-between p-4 bg-blue-400 text-white">
+              <div class="flex items-center">
+                <button class="mr-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onclick="toggleSidebar()">Toggle Sidebar</button>
+                <img src="path/to/logo.png" alt="Logo" class="h-12 mr-4" />
+                <form class="relative">
+                  <input type="text"
+                         placeholder="Search"
+                         class="pl-8 pr-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:bg-gray-600" />
+                  <svg class="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-400 h-5 w-5"
+                       fill="currentColor"
+                       xmlns="http://www.w3.org/2000/svg"
+                       viewBox="0 0 20 20">
+                    <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l4.88 4.88-1.42 1.42-4.87-4.88zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
+                  </svg>
+                </form>
+              </div>
+              <div class="flex items-center space-x-4">
+                <a href="playstore-link"
+                   class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Download on Playstore</a>
+                <div class="relative dropdown">
+                  <button class="flex items-center focus:outline-none">
+                    <span class="mr-2">Profile</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                  <div class="dropdown-menu absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl z-20 hidden">
+                    <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Settings</a>
+                    <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a>
+                  </div>
+                </div>
+              </div>
+            </header>
+          </div>
+
+          <script>
+            function toggleSidebar() {
+              document.getElementById('sidebar').classList.toggle('collapsed');
+            }
+
+            function toggleSubmenu(event, submenuId) {
+              event.preventDefault();
+              document.getElementById(submenuId).classList.toggle('submenu-open');
+            }
+          </script>
+        </body>
+      </html>

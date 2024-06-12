@@ -1,6 +1,10 @@
 from rest_framework import permissions, viewsets
 
-from students.api.utils import UserDestroyMixin, UserUpdateMixin
+from students.api.utils import (
+    UserCreateMixin,
+    UserDestroyMixin,
+    UserUpdateMixin,
+)
 from teachers.api.serializers import (
     ClassSerializer,
     SubjectSerializer,
@@ -10,7 +14,7 @@ from teachers.models import Class, Subject, Teacher
 
 
 class TeacherViewSet(
-    UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
+    UserCreateMixin, UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
 ):
     """
     A view class for handling Teacher objects.
@@ -30,16 +34,18 @@ class TeacherViewSet(
             queryset: The queryset of teachers.
         """
         user = self.request.user
+        queryset = Teacher.objects.all()
+
         if user.is_authenticated:
             if user.is_superuser:
-                return Teacher.objects.all()
+                return queryset
 
             if user.institution:
-                return Teacher.objects.filter(
+                return queryset.filter(
                     user__institution_id=user.institution.id
                 )
 
-            return Teacher.objects.none()
+        return queryset.none()
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -58,7 +64,8 @@ class ClassViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the queryset of classes based on the user's authentication and role.
+        Returns the queryset of classes based on the user's authentication and
+        role.
 
         Returns:
             queryset: The queryset of classes.
@@ -73,7 +80,7 @@ class ClassViewSet(viewsets.ModelViewSet):
                     teacher__user__institution_id=user.institution.id
                 )
 
-            return Class.objects.none()
+        return Class.objects.none()
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -92,7 +99,8 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the queryset of subjects based on the user's authentication and role.
+        Returns the queryset of subjects based on the user's authentication
+        and role.
 
         Returns:
             queryset: The queryset of subjects.

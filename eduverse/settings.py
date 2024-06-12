@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "https://eduverse.lzcorp.tech",
+    "https://eduverse-dev.lzcorp.tech",
+]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,7 +52,6 @@ INSTALLED_APPS = [
     "django_filters",
     "tailwind",
     "theme",
-    "django_browser_reload",
 ]
 
 
@@ -73,7 +78,6 @@ if DEBUG:
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
-        # "django_browser_reload.middleware.BrowserReloadMiddleware",
     ]
     INTERNAL_IPS = [
         "127.0.0.1",
@@ -113,6 +117,8 @@ LOGOUT_REDIRECT_URL = "core:home"
 WSGI_APPLICATION = "eduverse.wsgi.application"
 
 AUTH_USER_MODEL = "core.User"
+
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -229,7 +235,7 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_user",
     "social_core.pipeline.user.get_username",
     "social_core.pipeline.social_auth.associate_by_email",
-    "social_core.pipeline.user.create_user",
+    # "social_core.pipeline.user.create_user",
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",

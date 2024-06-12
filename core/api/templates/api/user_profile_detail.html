@@ -1,0 +1,12 @@
+{% extends base_dashboard_template %}
+
+{% load rest_framework %}
+
+{% block content %}
+  <h1 class="text-2xl">User Profile</h1>
+  <form id="profileForm" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <div class="flex flex-col">{% render_form serializer %}</div>
+    <input type="submit" value="Save" class="btn btn-lg btn-red">
+  </form>
+{% endblock content %}
