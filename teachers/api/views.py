@@ -1,6 +1,10 @@
 from rest_framework import permissions, viewsets
 
-from students.api.utils import UserDestroyMixin, UserUpdateMixin
+from students.api.utils import (
+    UserCreateMixin,
+    UserDestroyMixin,
+    UserUpdateMixin,
+)
 from teachers.api.serializers import (
     ClassSerializer,
     SubjectSerializer,
@@ -10,7 +14,7 @@ from teachers.models import Class, Subject, Teacher
 
 
 class TeacherViewSet(
-    UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
+    UserCreateMixin, UserUpdateMixin, UserDestroyMixin, viewsets.ModelViewSet
 ):
     """
     A view class for handling Teacher objects.
