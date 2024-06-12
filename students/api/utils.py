@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
+from core.api import utils
 from core.api.serializers import UserSerializer
 from students.models import Guardian, Student
 from teachers.models import Class
@@ -28,24 +29,37 @@ class UserCreateMixin:
             Response: The HTTP response object containing the created user data.
         """
         try:
-            user_data = request.data.pop("user")
+            data = request.data.copy()
+            try:
+                user_data = data.pop("user")
+            except Exception:
+                user_data = utils.get_user_data(data)
+                data.pop("csrfmiddlewaretoken", None)
+                data["user"] = user_data
+                data = {
+                    k: v[0] if len(v) >= 1 else v for k, v in data.lists()
+                }
+
             user_data["role"] = self.serializer_class.Meta.model.__name__
             user_serializer = UserSerializer(
-                data=user_data, context={"request": request}
+                data=user_data,
+                context={"request": request},
             )
             user_serializer.is_valid(raise_exception=True)
 
-            request.data["user"] = user_data
-            serializer = self.get_serializer(data=request.data)
+            if "date_of_graduation" in data:
+                # if the date of graduation is not provided, set it to None
+                if data["date_of_graduation"] == "":
+                    data["date_of_graduation"] = None
+
+            data["user"] = user_data
+            serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
 
-            # Save the user instance after all validations are done
+            class_id = data.get("class_id", None)
 
-            class_id = request.data.get("class_id", None)
             if class_id:
-                request.data["class_id"] = get_object_or_404(
-                    Class, id=class_id
-                )
+                data["class_id"] = get_object_or_404(Class, id=class_id)
             else:
                 if (
                     self.serializer_class.Meta.model.__name__ == "Student"
@@ -63,25 +77,31 @@ class UserCreateMixin:
                 status=status.HTTP_201_CREATED,
                 headers=headers,
             )
-
         except Exception as error:
             if "detail" in vars(error) and isinstance(error.detail, dict):
                 return Response(
                     {"error": {k: v for k, v in error.detail.items()}},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            # show detailed info to superusers to aid in debugging
+            if request.user.is_superuser:
+                return Response(
+                    {
+                        "error": {
+                            str(error.__class__.__name__): [
+                                error.args,
+                                error.__traceback__.tb_frame.f_globals[
+                                    "__file__"
+                                ],
+                                error.__traceback__.tb_lineno,
+                            ]
+                        }
+                    },
+                    status=status.HTTP_417_EXPECTATION_FAILED,
+                )
+
             return Response(
-                {
-                    "error": {
-                        str(error.__class__.__name__): [
-                            error.args,
-                            error.__traceback__.tb_frame.f_globals[
-                                "__file__"
-                            ],
-                            error.__traceback__.tb_lineno,
-                        ]
-                    }
-                },
+                {"error": error},
                 status=status.HTTP_417_EXPECTATION_FAILED,
             )
 
