@@ -1,3 +1,8 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import serializers
 
 from core.api.serializers import UserSerializer
@@ -20,6 +25,42 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id"]
 
+    def send_account_setup_email(self, user: User):
+        """
+        Sends an account setup email to the user.
+
+        Args:
+            user (User): The user object for whom the email is being sent.
+        """
+        request = self.context.get("request")
+        protocol = "https" if request.is_secure() else "http"
+        current_site = get_current_site(request)
+        mail_subject = f"{user.institution.name} {user.role} Account Setup"
+
+        token = default_token_generator.make_token(user)
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        password_reset_link = (
+            f"{protocol}://{current_site.domain}"
+            f"/password_reset/confirm/{uid}/{token}/"
+        )
+
+        message = (
+            f"Hello {user.fullname},\n\n"
+            "Click the link below to complete your account setup and set "
+            "your password.\n"
+            f"{password_reset_link}\n\n"
+            f"The {user.institution.name} Team"
+        )
+        send_mail(
+            subject=mail_subject,
+            message=message,
+            from_email=user.institution.email,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
     def create(self, validated_data):
         """
         Create a new instance of the model with the given validated data.
@@ -38,9 +79,11 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
 
         try:
             user_instance = User.objects.create(**user_data)
-            return self.Meta.model.objects.create(
+            obj = self.Meta.model.objects.create(
                 user=user_instance, **validated_data
             )
+            self.send_account_setup_email(obj.user)
+            return obj
         except Exception as e:
             # delete the user instance if the model instance creation fails
             if "user_instance" in locals():
@@ -135,7 +178,6 @@ class StudentSerializer(StudentValidationMixin, BaseUserModelSerializer):
             The updated instance.
         """
         guardian = validated_data.pop("guardian", None)
-        print(validated_data)
 
         if guardian:
             instance.guardian = guardian
