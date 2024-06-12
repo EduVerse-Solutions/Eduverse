@@ -30,9 +30,9 @@ class UserCreateMixin:
         """
         try:
             data = request.data.copy()
-            try:
+            if "user" in data:
                 user_data = data.pop("user")
-            except Exception:
+            else:
                 user_data = utils.get_user_data(data)
                 data.pop("csrfmiddlewaretoken", None)
                 data["user"] = user_data
@@ -127,15 +127,23 @@ class UserUpdateMixin:
         Returns:
             Response: The HTTP response object containing the updated user data.
         """
+        data = request.data.copy()
         try:
             partial = kwargs.pop("partial", False)
             instance = self.get_object()
             user = instance.user
 
-            if "user" in request.data:
-                user_data = request.data.pop("user")
+            if "user" in data:
+                user_data = data.pop("user")
             else:
-                user_data = vars(user)
+                user_data = utils.get_user_data(data)
+                data = {
+                    k: v[0] if len(v) >= 1 else v for k, v in data.lists()
+                }
+            if "date_of_graduation" in data:
+                # if the date of graduation is not provided, set it to None
+                if data["date_of_graduation"] == "":
+                    data["date_of_graduation"] = None
 
             user_data.pop("url", None)
             user_serializer = UserSerializer(
@@ -148,10 +156,10 @@ class UserUpdateMixin:
             user_serializer.save()
 
             # ensure there's user context in the request data
-            request.data["user"] = user_data
+            data["user"] = user_data
 
             serializer = self.get_serializer(
-                instance, data=request.data, partial=partial
+                instance, data=data, partial=partial
             )
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
@@ -174,9 +182,9 @@ class UserUpdateMixin:
                 view = request.parser_context.get("view")
                 user.__dict__.update(user_data)
                 user.save()
-                guardian_id = request.data.get("guardian", None)
+                guardian_id = data.get("guardian", None)
 
-                class_id = request.data.get("class_id", None)
+                class_id = data.get("class_id", None)
                 if class_id and isinstance(instance, Student):
                     instance.class_id = get_object_or_404(Class, id=class_id)
                 else:
@@ -194,8 +202,8 @@ class UserUpdateMixin:
                 else:
                     try:
                         guardian = Guardian.objects.get(id=instance.id)
-                        if "wards" in request.data:
-                            new_wards = set(request.data.pop("wards", []))
+                        if "wards" in data:
+                            new_wards = set(data.pop("wards", []))
                             current_wards = set(
                                 guardian.wards.values_list("id", flat=True)
                             )
@@ -217,7 +225,7 @@ class UserUpdateMixin:
                         pass
 
                 # Update the instance with the rest of the data
-                instance.__dict__.update(request.data)
+                instance.__dict__.update(data)
                 instance.save()
                 response = view.get(request)
                 return Response(response.data)
@@ -227,16 +235,26 @@ class UserUpdateMixin:
                     {"error": {k: v for k, v in error.detail.items()}},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+            if request.user.is_superuser:
+                return Response(
+                    {
+                        "error": {
+                            str(error.__class__.__name__): [
+                                error.args,
+                                error.__traceback__.tb_frame.f_globals[
+                                    "__file__"
+                                ],
+                            ]
+                        }
+                    },
+                    status=status.HTTP_417_EXPECTATION_FAILED,
+                )
+
             return Response(
                 {
-                    "error": {
-                        str(error.__class__.__name__): [
-                            error.args,
-                            error.__traceback__.tb_frame.f_globals[
-                                "__file__"
-                            ],
-                        ]
-                    }
+                    "error": "An unexpected error occurred.",
+                    "next_steps": "Confirm you provided the correct data.",
                 },
                 status=status.HTTP_417_EXPECTATION_FAILED,
             )
