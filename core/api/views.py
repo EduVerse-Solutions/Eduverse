@@ -13,6 +13,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.api import utils
 from core.api.permissions import (
     IsOwnerOrAdmin,
     IsPartOfInstitution,
@@ -43,10 +44,12 @@ class APISchemaView(View):
     """
     A view class for retrieving the API schema.
 
-    This view class handles the GET request and returns the API schema in YAML format.
+    This view class handles the GET request and returns the API schema in YAML
+    format.
 
     Methods:
-        get(request, *args, **kwargs): Retrieves the API schema and returns it as a YAML response.
+        get(request, *args, **kwargs): Retrieves the API schema and returns it
+        as a YAML response.
     """
 
     def get(self, request, *args, **kwargs):
@@ -148,6 +151,7 @@ class UserProfileListView(LoginRequiredMixin, APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "api/user_profile_list.html"
     permission_classes = [IsPartOfInstitution]
+    serializer_class = UserProfileSerializer
 
     def get(self, request):
         """
@@ -193,6 +197,7 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "api/user_profile_detail.html"
     permission_classes = [IsPartOfInstitution]
+    serializer_class = UserProfileSerializer
 
     def get(self, request, pk, format=None):
         """
@@ -237,13 +242,8 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
         profile = get_object_or_404(UserProfile, pk=pk)
         base_template = get_base_template(request.user.role)
 
-        data = request.data.copy()
-        user_data = {}
-
-        for key in list(data.keys()):
-            if key.startswith("user."):
-                user_key = key.split(".")[1]
-                user_data[user_key] = data.pop(key)[0]
+        data = dict(request.data)
+        user_data = utils.get_user_data(data)
 
         if not request.user.is_superuser:
             user_data["institution"] = profile.user.institution.pk
@@ -284,9 +284,7 @@ class UserProfileDetailView(LoginRequiredMixin, APIView):
                 errors = user_serializer.errors
                 messages.error(request, "An error occurred.")
                 for key, value in errors.items():
-                    messages.error(
-                        request, f"{key.split('_')}: {value[0]}"
-                    )
+                    messages.error(request, f"{key.split('_')}: {value[0]}")
 
             return Response(
                 {
@@ -323,6 +321,7 @@ class InstitutionProfileListView(LoginRequiredMixin, APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "api/institution_profile_list.html"
     permission_classes = [IsSuperAdminOrAdmin]
+    serializer_class = InstitutionProfileSerializer
 
     def get(self, request):
         """
@@ -368,6 +367,7 @@ class InstitutionProfileDetailView(LoginRequiredMixin, APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "api/institution_profile_detail.html"
     permission_classes = [IsSuperAdminOrAdmin]
+    serializer_class = InstitutionProfileSerializer
 
     def get(self, request, pk, format=None):
         """
