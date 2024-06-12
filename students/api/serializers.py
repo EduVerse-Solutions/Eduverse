@@ -1,5 +1,4 @@
-from rest_framework import serializers, status
-from rest_framework.response import Response
+from rest_framework import serializers
 
 from core.api.serializers import UserSerializer
 from core.models import User
@@ -44,12 +43,10 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
             )
         except Exception as e:
             # delete the user instance if the model instance creation fails
-            if user_instance:
+            if "user_instance" in locals():
                 user_instance.delete()
 
-            return Response(
-                {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
-            )
+            raise e
 
     def update(self, instance, validated_data, partial=False):
         """
