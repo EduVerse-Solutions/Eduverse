@@ -1,0 +1,42 @@
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.sidebar {
+  transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+.submenu {
+  display: none;
+}
+
+.submenu-open .submenu {
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.float-right {
+  float: right;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 16px;
+}

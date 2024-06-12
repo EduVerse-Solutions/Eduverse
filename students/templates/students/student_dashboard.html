@@ -1,19 +1,78 @@
-{% extends base_template %}
+{% extends "core/dashboards/dashboard_base.html" %}
 
-{% block title %}
-  Student Dashboard
-{% endblock title %}
+{% load static %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static "students/css/main.css" %}">
+{% endblock extra_css %}
 
 {% block sidebar %}
-  <nav>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Student Home</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Courses</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Grades</a>
-    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-yellow-400">Profile</a>
-  </nav>
-{% endblock sidebar %}
+  <nav id="sidebar"
+       class="sidebar bg-blue-800 text-white h-full w-64 relative h-screen">
+    <div class="p-4">
+      <h2 class="text-xl font-bold">Student Menu</h2>
+      <ul class="mt-4">
+        <li class="py-2 px-4 hover:bg-gray-700">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-gray-700">
+          <a href="#">Users</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-gray-700">
+          <a href="#"> <i class="fas fa-cog mr-2"></i> General Settings</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'classesSubmenu')">
+            <i class="fas fa-chalkboard-teacher mr-2"></i> Classes
+            <i class="fas fa-chevron-down float-right"></i>
+          </a>
+          <ul id="classesSubmenu" class="submenu pl-4">
+            <li class="py-2 px-4 hover:bg-gray-600">
+              <a href="#">All Classes</a>
+            </li>
+            <li class="py-2 px-4 hover:bg-gray-600">
+              <a href="#">New Class</a>
+            </li>
+          </ul>
+        </li>
+        <li class="py-2 px-4 hover:bg-gray-700">
+          <a href="#"> <i class="fas fa-book-open mr-2"></i> Subjects</a>
+        </li>
+        <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+          <a href="#" onclick="toggleSubmenu(event, 'studentsSubmenu')">
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+            <a href="#" onclick="toggleSubmenu(event, 'employeesSubmenu')">
+              <li class="py-2 px-4 hover:bg-gray-700 submenu-item">
+                <a href="#" onclick="toggleSubmenu(event, 'feesSubmenu')">
+                  <i class="fas fa-coins mr-2"></i> Fee Structure
+                  <i class="fas fa-chevron-down float-right"></i>
+                </a>
+                <ul id="feesSubmenu" class="submenu pl-4">
+                  <li class="py-2 px-4 hover:bg-gray-600">
+                    <a href="#">Fee Update</a>
+                  </li>
+                  <li class="py-2 px-4 hover:bg-gray-600">
+                    <a href="#">Fee Slip</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="py-2 px-4 hover:bg-gray-700">
+                <a href="#"> <i class="fas fa-calendar-alt mr-2"></i> Timetable</a>
+              </li>
+              <li class="py-2 px-4 hover:bg-gray-700">
+                <a href="#"> <i class="fas fa-envelope-open-text mr-2"></i> Exams</a>
+                <a href="#"></a>
+              </li>
+              <li class="py-2 px-4 hover:bg-gray-700">
+                <a href="#">
+                  <i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      {% endblock sidebar %}
 
-{% block content %}
-  <h1 class="text-2xl font-semibold text-gray-700">Student Dashboard Content</h1>
-  <!-- Student specific content goes here -->
-{% endblock content %}
+      {% block content %}
+        <h1 class="text-2xl font-semibold text-gray-700">Student Dashboard Content</h1>
+        <!-- Student specific content goes here -->
+      {% endblock content %}
