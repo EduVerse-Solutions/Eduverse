@@ -5,7 +5,6 @@ from pathlib import Path
 from shutil import which
 
 from django.contrib import messages
-from django.shortcuts import redirect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -119,7 +118,7 @@ WSGI_APPLICATION = "eduverse.wsgi.application"
 
 AUTH_USER_MODEL = "core.User"
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
