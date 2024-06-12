@@ -133,3 +133,19 @@ def create_guardian(assign_institution=False):
         return user
 
     return User.objects.create(**data.user_list[2])
+
+
+def get_user_data(data):
+    """
+    Returns the cleaned user data from the request data.
+
+    This is used mostly when user data is received from from a form. This
+    ensures there's consistency across the user data.
+    """
+    user_data = {}
+    for key in list(data.keys()):
+        if key.startswith("user."):
+            user_key = key.split(".")[1]
+            user_data[user_key] = data.pop(key)[0]
+
+    return user_data
