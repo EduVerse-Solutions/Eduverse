@@ -53,8 +53,6 @@ class UserValidationMixin:
                 "Request is not available in the serializer context."
             )
 
-        request_user = request.user
-
         if data is None:
             raise serializers.ValidationError(
                 "No data was provided to the serializer."
@@ -101,7 +99,7 @@ class UserValidationMixin:
         new_user = User(**user_data)
 
         if request.method == "POST":
-            if not (request_user.is_superuser or request_user.institution):
+            if not (request.user.is_superuser or request.user.institution):
                 raise serializers.ValidationError(
                     {
                         "user": "You must belong to an institution to "
@@ -110,13 +108,13 @@ class UserValidationMixin:
                     "does_not_have_institution",
                 )
 
-            if not request_user.is_superuser and not new_user.institution:
+            if not request.user.is_superuser and not new_user.institution:
                 raise serializers.ValidationError(
                     {"user": "The institution field cannot be empty."},
                     "required",
                 )
 
-            if request_user.role not in ["Admin", "Super Admin"]:
+            if request.user.role not in ["Admin", "Super Admin"]:
                 raise serializers.ValidationError(
                     {
                         "user": "You must be an admin to create a user.",
@@ -129,22 +127,22 @@ class UserValidationMixin:
                 # in case of a patch, let's ensure the user already exists and
                 # then update its data with its existing one before proceeding
                 # to the partial update
-                if request_user.is_superuser:
+                if request.user.is_superuser:
                     pk = request.user.pk  # Get the user's ID from the request
                     user = User.objects.get(pk=pk)
                 else:
                     pk = request.user.pk  # Get the user's ID from the request
                     user = User.objects.get(
-                        pk=pk, institution=request_user.institution
+                        pk=pk, institution=request.user.institution
                     )
                 new_user.__dict__.update(user.__dict__)
 
             if new_user.institution is not None:
                 if (
-                    not request_user.is_superuser
-                    and request_user != new_user
-                    and request_user.institution != new_user.institution
-                    and request_user != new_user.institution.owner
+                    not request.user.is_superuser
+                    and request.user != new_user
+                    and request.user.institution != new_user.institution
+                    and request.user != new_user.institution.owner
                 ):
                     raise serializers.ValidationError(
                         {
@@ -165,9 +163,9 @@ class UserValidationMixin:
                         "invalid_institution",
                     )
 
-        if request_user.role == "Super Admin" and request.user == new_user:
+        if request.user.role == "Super Admin" and request.user == new_user:
             # ensure that Institution owners are at least 18 years old
-            if date.today().year - request_user.date_of_birth.year < 18:
+            if date.today().year - request.user.date_of_birth.year < 18:
                 raise serializers.ValidationError(
                     {"user": "Institution owners must be at least 18 years."},
                     "age_restriction_",
@@ -192,7 +190,7 @@ class UserValidationMixin:
 class InstitutionValidationMixin:
     def validate(self, data):
         request = self.context.get("request")
-        request_user = request.user
+        request.user = request.user
         new_institution = Institution(**data)
 
         if request.method in ["PUT", "POST"]:
@@ -204,7 +202,7 @@ class InstitutionValidationMixin:
                     "required",
                 )
         if request.method == "POST":
-            if request_user.institution and not request_user.is_superuser:
+            if request.user.institution and not request.user.is_superuser:
                 raise serializers.ValidationError(
                     {
                         "institution": "You must not belong to an institution "
@@ -214,12 +212,12 @@ class InstitutionValidationMixin:
                 )
 
         if request.method in ["PUT", "PATCH", "DELETE"]:
-            if not (request_user.institution or request_user.is_superuser):
+            if not (request.user.institution or request.user.is_superuser):
                 raise serializers.ValidationError(
                     {
                         "institution": "You must belong to an institution to "
                         "perform this action.",
-                        "info": request_user.institution,
+                        "info": request.user.institution,
                     },
                     "does_not_have_institution",
                 )
@@ -227,13 +225,13 @@ class InstitutionValidationMixin:
                 # in case of a patch, let's ensure the institution already
                 # exists and then update its data with its existing one before
                 # proceeding to the partial update
-                if request_user.is_superuser:
+                if request.user.is_superuser:
                     pk = request.parser_context.get("kwargs").get("pk")
                     institution = Institution.objects.get(pk=pk)
                 else:
                     pk = request.parser_context.get("kwargs").get("pk")
                     institution = Institution.objects.get(
-                        pk=pk, id=request_user.institution.id
+                        pk=pk, id=request.user.institution.id
                     )
                 new_institution.__dict__.update(institution.__dict__)
 
@@ -254,7 +252,7 @@ class InstitutionValidationMixin:
                     "invalid_operation",
                 )
 
-            if request_user.role not in ["Admin", "Super Admin"]:
+            if request.user.role not in ["Admin", "Super Admin"]:
                 raise serializers.ValidationError(
                     {
                         "institution": "Only administrators can perform this "
