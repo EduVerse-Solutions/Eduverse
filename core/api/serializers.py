@@ -1,10 +1,24 @@
+from enum import Enum
+
 from rest_framework import serializers
 
 from core.api.validators import (
     InstitutionValidationMixin,
     UserValidationMixin,
 )
-from core.models import Institution, User, UserProfile
+from core.models import Institution, InstitutionProfile, User, UserProfile
+
+
+class Role(str, Enum):
+    Student = "Student"
+    Teacher = "Teacher"
+    Admin = "Admin"
+    Guardian = "Guardian"
+    SuperAdmin = "Super Admin"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
 
 
 class InstitutionRelatedField(serializers.PrimaryKeyRelatedField):
@@ -20,12 +34,44 @@ class InstitutionRelatedField(serializers.PrimaryKeyRelatedField):
         return Institution.objects.filter(owner__pk=request.user.pk)
 
 
+class RoleBasedOnRoute(serializers.ChoiceField):
+    def __init__(self, **kwargs):
+        kwargs["choices"] = []
+        super().__init__(**kwargs)
+
+    def bind(self, field_name, parent):
+        super().bind(field_name, parent)
+
+        request = self.context.get("request")
+        if request is None:
+            return
+
+        path_role_map = {
+            "/api/students": [Role.Student.value],
+            "/api/teachers": [Role.Teacher.value],
+            "/api/guardians": [Role.Guardian.value],
+        }
+        path = request.path
+        for path_prefix, role in path_role_map.items():
+            if path.startswith(path_prefix):
+                self.choices = role
+                break
+        else:
+            self.choices = Role.choices()
+
+    def get_choices(self, cutoff=None):
+        if "request" in self.context:
+            return super().get_choices(cutoff)
+        return dict(Role.choices())
+
+
 class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="core-api:user-detail"
     )
 
     institution = InstitutionRelatedField()
+    role = RoleBasedOnRoute(required=True)
 
     class Meta:
         model = User
@@ -51,7 +97,6 @@ class UserSerializer(UserValidationMixin, serializers.ModelSerializer):
             "url",
             "id",
             "fullname",
-            "role",
             "created_at",
             "updated_at",
         ]
@@ -104,5 +149,5 @@ class InstitutionProfileSerializer(serializers.ModelSerializer):
     institution = InstitutionSerializer()
 
     class Meta:
-        model = Institution
-        fields = ["institution", "bio", "logo"]
+        model = InstitutionProfile
+        fields = ["institution", "description", "logo"]
