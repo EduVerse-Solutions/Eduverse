@@ -3,7 +3,7 @@
 {% load rest_framework %}
 
 {% block content %}
-<h1 class="text-2xl">User Profile</h1>
+  <h1 class="text-2xl">User Profile</h1>
   <form id="profileForm" enctype="multipart/form-data" method="post">
     {% csrf_token %}
     <div class="flex flex-col">{% render_form serializer %}</div>
